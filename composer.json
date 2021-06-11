@@ -1,0 +1,33 @@
+{
+  "name": "lgdz/hyperf",
+  "version": "2.0.0",
+  "description": "tools class",
+  "type": "library",
+  "license": "MIT",
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=7.3",
+    "hyperf/cache": "~2.1.0",
+    "hyperf/command": "~2.1.0",
+    "hyperf/config": "~2.1.0",
+    "hyperf/crontab": "^2.1",
+    "hyperf/database": "~2.1.0",
+    "hyperf/db-connection": "~2.1.0",
+    "hyperf/filesystem": "^2.1",
+    "hyperf/framework": "~2.1.0",
+    "hyperf/guzzle": "~2.1.0",
+    "hyperf/http-server": "~2.1.0",
+    "hyperf/logger": "~2.1.0",
+    "hyperf/memory": "~2.1.0",
+    "hyperf/paginator": "^2.1",
+    "hyperf/process": "~2.1.0",
+    "hyperf/redis": "~2.1.0",
+    "hyperf/validation": "^2.1",
+    "lgdz/factory": "1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "lgdz\\hyperf\\": "src"
+    }
+  }
+}
