@@ -1,6 +1,6 @@
 {
   "name": "lgdz/hyperf",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "description": "tools class",
   "type": "library",
   "license": "MIT",
@@ -23,7 +23,8 @@
     "hyperf/process": "~2.1.0",
     "hyperf/redis": "~2.1.0",
     "hyperf/validation": "^2.1",
-    "lgdz/factory": "1.0"
+    "lgdz/factory": "v2.0.x-dev",
+    "ext-json": "*"
   },
   "autoload": {
     "psr-4": {
