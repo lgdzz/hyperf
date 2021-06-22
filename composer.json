@@ -32,7 +32,7 @@
     }
   },
   "extra": {
-    "lgdz": {
+    "hyperf": {
       "config": "lgdz\\hyperf\\ConfigProvider"
     }
   }
