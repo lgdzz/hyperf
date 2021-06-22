@@ -19,7 +19,11 @@ class ConfigProvider
             // 与 commands 类似
             'listeners'    => [],
             'exceptions'   => [
-                AppExceptionHandler::class
+                'handler' => [
+                    'http' => [
+                        AppExceptionHandler::class
+                    ]
+                ]
             ],
             // 合并到  config/autoload/annotations.php 文件
             'annotations'  => [
