@@ -2,6 +2,9 @@
 
 namespace lgdz\hyperf;
 
+use lgdz\exception\handler\AppExceptionHandler;
+use lgdz\hyperf\command\CustomCommand;
+
 class ConfigProvider
 {
     public function __invoke(): array
@@ -9,6 +12,15 @@ class ConfigProvider
         return [
             // 合并到  config/autoload/dependencies.php 文件
             'dependencies' => [],
+            // 默认 Command 的定义，合并到 Hyperf\Contract\ConfigInterface 内，换个方式理解也就是与 config/autoload/commands.php 对应
+            'commands'     => [
+                CustomCommand::class
+            ],
+            // 与 commands 类似
+            'listeners'    => [],
+            'exceptions'   => [
+                AppExceptionHandler::class
+            ],
             // 合并到  config/autoload/annotations.php 文件
             'annotations'  => [
                 'scan' => [
@@ -16,15 +28,6 @@ class ConfigProvider
                         __DIR__,
                     ],
                 ],
-            ],
-            // 默认 Command 的定义，合并到 Hyperf\Contract\ConfigInterface 内，换个方式理解也就是与 config/autoload/commands.php 对应
-            'commands'     => [
-                \lgdz\hyperf\command\CustomCommand::class
-            ],
-            // 与 commands 类似
-            'listeners'    => [],
-            'exceptions'   => [
-                \lgdz\exception\handler\AppExceptionHandler::class
             ],
             // 组件默认配置文件，即执行命令后会把 source 的对应的文件复制为 destination 对应的的文件
             'publish'      => [
