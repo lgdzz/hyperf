@@ -4,22 +4,17 @@ declare(strict_types=1);
 
 namespace lgdz\hyperf\service;
 
-use App\Model\Rule;
-use App\Utils\Tools;
+use lgdz\hyperf\model\Rule;
+use lgdz\hyperf\Tools;
 
-class RuleService extends AbstractResourceService
+class RuleService
 {
     public function index(array $input)
     {
         return Rule::query()->orderByRaw('sort asc,id asc')->get();
     }
 
-    public function read(int $id, ...$args)
-    {
-        return Rule::query()->where('id', $id)->firstOrFail();
-    }
-
-    public function create(array $input)
+    public function create(array $input): void
     {
         $rule = new Rule();
         $rule->setFormData($input);
@@ -30,9 +25,9 @@ class RuleService extends AbstractResourceService
         $rule->save();
     }
 
-    public function update(int $id, array $input, ...$args)
+    public function update(int $id, array $input): void
     {
-        $rule = Rule::query()->where('id', $id)->firstOrFail();
+        $rule = $this->rule($this->findById($id));
         $rule->setFormData($input);
         $rule->save();
         // 生成path
@@ -41,8 +36,29 @@ class RuleService extends AbstractResourceService
         $rule->save();
     }
 
-    public function delete(int $id, ...$args)
+    public function delete(int $id)
     {
-        Rule::destroy($id);
+        $rule = $this->rule($this->findById($id));
+        count($rule->children) > 0 && Tools::E('请先删除子规则');
+        try {
+            $rule->delete();
+        } catch (\Exception $e) {
+            Tools::E('删除失败');
+        }
+    }
+
+    public function findById(int $id)
+    {
+        return Rule::query()->where('id', $id)->first();
+    }
+
+    /**
+     * 验证参数是否是Rule对象，如不是抛出异常
+     * @param $rule
+     * @return Rule
+     */
+    public function rule($rule): Rule
+    {
+        return ($rule instanceof Rule) ? $rule : Tools::E('权限规则不存在');
     }
 }

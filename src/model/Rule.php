@@ -20,6 +20,7 @@ use Hyperf\DbConnection\Model\Model;
  * @property string $client_route_name
  * @property string $icon
  * @property int $sort
+ * @property-read Rule[] $children
  */
 class Rule extends Model
 {
@@ -43,6 +44,11 @@ class Rule extends Model
     protected $casts = ['id' => 'integer', 'pid' => 'integer', 'sort' => 'integer'];
 
     public $timestamps = false;
+
+    public function children()
+    {
+        return $this->hasMany(Rule::class, 'pid', 'id');
+    }
 
     public function setFormData(array $input)
     {

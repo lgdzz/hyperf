@@ -4,38 +4,35 @@ declare(strict_types=1);
 
 namespace lgdz\hyperf\service;
 
-use App\Model\LoginLog;
-use App\Model\User;
-use App\Utils\Tools;
-use Hyperf\Utils\Context;
-use Psr\Http\Message\ServerRequestInterface;
+use lgdz\hyperf\model\LoginLog;
+use lgdz\hyperf\model\User;
+use lgdz\hyperf\Tools;
+use lgdz\Factory;
+use lgdz\object\Query;
 
 class LoginLogService
 {
     public function index(array $input)
     {
-        $ip = $input['ip'] ?? false;
-        $user_id = $input['user_id'] ?? false;
-        $page = $input['page'] ?? false;
-        $page_size = $input['page_size'] ?? 15;
-        $model = LoginLog::query()->when($user_id, function ($query, $value) {
+        $query = new Query($input);
+        $model = LoginLog::query()->when($query->user_id, function ($query, $value) {
             return $query->where('user_id', $value);
         })->orderByDesc('id');
-        if ($page) {
+        if ($query->is_page) {
             return Tools::P(
-                $model->paginate((int)$page_size)
+                $model->paginate($query->size)
             );
         } else {
-            return $model->limit($input['limit'] ?? 10)->get();
+            return $model->limit($query->limit ?: 10)->get();
         }
     }
 
     public static function create(int $user_id, string $channel)
     {
-        $request = Context::get(ServerRequestInterface::class);
+        $request = Tools::I();
         $client_ip = $request->getHeader('x-real-ip')[0] ?? 'myip';
         go(function () use ($user_id, $channel, $client_ip) {
-            $ip_info = Tools::$factory->Helper()->getIpInfo($client_ip);
+            $ip_info = Factory::container()->helper->getIpInfo($client_ip);
             $model = new LoginLog();
             $model->user_id = $user_id;
             $model->ip_isp = $ip_info['isp'];

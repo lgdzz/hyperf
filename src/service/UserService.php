@@ -7,27 +7,23 @@ namespace lgdz\hyperf\service;
 use lgdz\Factory;
 use lgdz\hyperf\model\User;
 use lgdz\hyperf\Tools;
+use lgdz\object\Body;
+use lgdz\object\Query;
 
 class UserService
 {
     public function index(array $input)
     {
-        $size = $input['page_size'] ?? 10;
-        $status = $input['status'] ?? false;
-        $username = $input['username'] ?? false;
-        $phone = $input['phone'] ?? false;
-        $role_id = $input['role_id'] ?? false;
-
-        $paginate = User::query()->with('role')->when($status, function ($query, $value) {
+        $query = new Query($input);
+        $paginate = User::query()->with('role')->when($query->status, function ($query, $value) {
             return $query->where('status', $value);
-        })->when($username, function ($query, $value) {
+        })->when($query->username, function ($query, $value) {
             return $query->where('username', 'like', '%' . $value . '%');
-        })->when($phone, function ($query, $value) {
+        })->when($query->phone, function ($query, $value) {
             return $query->where('phone', 'like', '%' . $value . '%');
-        })->when($role_id, function ($query, $value) {
+        })->when($query->role_id, function ($query, $value) {
             return $query->where('role_id', $value);
-        })->where('id', '>', 1)->orderByDesc('id')->paginate((int)$size);
-
+        })->where('id', '>', 1)->orderByDesc('id')->paginate($query->size);
         return Tools::P(
             $paginate,
             function (User $user) {
@@ -39,8 +35,9 @@ class UserService
 
     public function create(array $input): User
     {
-        $username = $input['username'];
-        $phone = $input['phone'];
+        $body = new Body($input);
+        $username = $body->username;
+        $phone = $body->phone;
         User::query()->where('username', $username)->first() && Tools::E("账号[{$username}]已注册");
         User::query()->where('phone', $phone)->first() && Tools::E("手机号[{$phone}]已注册");
         $user = new User;

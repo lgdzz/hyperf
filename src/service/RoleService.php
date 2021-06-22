@@ -47,8 +47,12 @@ class RoleService
     public function delete(int $id)
     {
         $role = $this->role($this->findById($id));
-
-        $role->delete();
+        count($role->children) > 0 && Tools::E('请先删除子角色');
+        try {
+            $role->delete();
+        } catch (\Exception $e) {
+            Tools::E('删除失败');
+        }
     }
 
     /**
