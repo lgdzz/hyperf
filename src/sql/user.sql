@@ -1,4 +1,4 @@
-CREATE TABLE `user2` (
+CREATE TABLE `user` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `type` enum('master','branch') DEFAULT 'branch',
   `role_id` int(11) unsigned NOT NULL,

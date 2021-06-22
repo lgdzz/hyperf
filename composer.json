@@ -30,5 +30,10 @@
     "psr-4": {
       "lgdz\\hyperf\\": "src"
     }
+  },
+  "extra": {
+    "lgdz": {
+      "config": "lgdz\\hyperf\\ConfigProvider"
+    }
   }
 }
