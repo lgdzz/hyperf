@@ -7,7 +7,7 @@ CREATE TABLE `user` (
   `password` char(32) NOT NULL DEFAULT '',
   `salt` char(5) NOT NULL DEFAULT '',
   `job_number` varchar(30) DEFAULT NULL COMMENT '工号',
-  `is_disable` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '1-启用|2-禁用',
   `is_system` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `remark` varchar(255) DEFAULT NULL,
   `last_ip` varchar(15) DEFAULT NULL,

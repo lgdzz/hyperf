@@ -1,27 +1,25 @@
 <?php
 
 declare (strict_types=1);
-
 namespace lgdz\hyperf\model;
 
 use Hyperf\DbConnection\Model\Model;
-
 /**
- * @property int $id
- * @property string $type
- * @property int $role_id
- * @property string $phone
- * @property string $username
- * @property string $password
- * @property string $salt
- * @property string $job_number
- * @property int $is_disable
- * @property int $is_system
- * @property string $remark
- * @property string $last_ip
- * @property int $last_time
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property int $id 
+ * @property string $type 
+ * @property int $role_id 
+ * @property string $phone 
+ * @property string $username 
+ * @property string $password 
+ * @property string $salt 
+ * @property string $job_number 
+ * @property int $status 
+ * @property int $is_system 
+ * @property string $remark 
+ * @property string $last_ip 
+ * @property int $last_time 
+ * @property \Carbon\Carbon $created_at 
+ * @property \Carbon\Carbon $updated_at 
  */
 class User extends Model
 {
@@ -42,5 +40,5 @@ class User extends Model
      *
      * @var array
      */
-    protected $casts = ['id' => 'integer', 'role_id' => 'integer', 'is_disable' => 'integer', 'is_system' => 'integer', 'last_time' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
+    protected $casts = ['id' => 'integer', 'role_id' => 'integer', 'status' => 'integer', 'is_system' => 'integer', 'last_time' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
 }

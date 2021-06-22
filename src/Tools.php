@@ -5,8 +5,10 @@ declare (strict_types=1);
 namespace lgdz\hyperf;
 
 use Closure;
+use lgdz\hyperf\model\User;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\InvalidArgumentException;
+use Hyperf\Utils\Context;
 use Hyperf\Utils\ApplicationContext;
 use Hyperf\Contract\PaginatorInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
@@ -21,6 +23,20 @@ use lgdz\exception\BusinessException;
  */
 class Tools
 {
+    /**
+     * @param User|null $user
+     * @return User
+     */
+    public static function U(User $user = null): User
+    {
+        if (is_null($user)) {
+            return Context::get('user');
+        } else {
+            Context::set('user', $user);
+            return $user;
+        }
+    }
+
     /**
      * 数据库查询分页
      * @param PaginatorInterface $paginate
@@ -105,6 +121,7 @@ class Tools
     /**
      * 异常抛出
      * @param string $msg
+     * @return mixed
      */
     public static function E(string $msg)
     {

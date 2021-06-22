@@ -43,4 +43,28 @@ class Rule extends Model
     protected $casts = ['id' => 'integer', 'pid' => 'integer', 'sort' => 'integer'];
 
     public $timestamps = false;
+
+    public function setFormData(array $input)
+    {
+        $this->pid = $input['pid'] ?? 0;
+        $this->name = $input['name'];
+        $this->type = $input['type'];
+        $this->method = $input['method'] ?? null;
+        $this->permission_id = $input['permission_id'] ?? null;
+        $this->operation = $input['operation'] ?? null;
+        $this->service_router = $input['service_router'] ?? null;
+        $this->client_router = $input['client_router'] ?? null;
+    }
+
+    public static function fullRulesIds($rule_ids)
+    {
+        $rules = Rule::query()->whereIn('id', $rule_ids)->get();
+        $paths = [];
+        array_map(function (Rule $rule) use (&$paths) {
+            $paths = array_merge($paths, explode(',', $rule->path));
+        }, $rules->all());
+        return array_values(array_map(function ($id) {
+            return (int)$id;
+        }, array_filter(array_unique($paths))));
+    }
 }
