@@ -6,6 +6,8 @@ namespace lgdz\hyperf;
 
 use Closure;
 use lgdz\hyperf\model\User;
+use lgdz\object\Body;
+use lgdz\object\Query;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use Hyperf\Utils\Context;
@@ -169,5 +171,27 @@ class Tools
     public static function Log(string $name = 'log')
     {
         return ApplicationContext::getContainer()->get(\Hyperf\Logger\LoggerFactory::class)->get($name);
+    }
+
+    public static function Query(array $append = [])
+    {
+        $query = new Query(Tools::I()->getQueryParams());
+        if (!empty($append)) {
+            foreach ($append as $key => $value) {
+                $body->$key = $value;
+            }
+        }
+        return $body;
+    }
+
+    public static function Body(array $append = [])
+    {
+        $body = new Body(Tools::I()->getParsedBody());
+        if (!empty($append)) {
+            foreach ($append as $key => $value) {
+                $body->$key = $value;
+            }
+        }
+        return $body;
     }
 }

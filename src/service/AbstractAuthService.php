@@ -25,9 +25,12 @@ abstract class AbstractAuthService
      */
     public function __construct()
     {
+        $this->secret = config('lgdz.auth.secret', '1234567890');
+        $this->ticket_key = config('lgdz.auth.ticket_key', 'user_ticket');
+
         $this->jwt = Factory::container()->jwt;
-        $this->jwt->setSecret($this->secret ?: '1234567890');
-        $this->jwt->setTicketKey($this->ticket_key ?: 'user_ticket');
+        $this->jwt->setSecret($this->secret);
+        $this->jwt->setTicketKey($this->ticket_key);
         $this->redis = ApplicationContext::getContainer()->get(Redis::class);
     }
 

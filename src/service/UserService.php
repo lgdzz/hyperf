@@ -12,6 +12,7 @@ use lgdz\object\Query;
 
 class UserService
 {
+    // 用户列表
     public function index(array $input)
     {
         $query = new Query($input);
@@ -33,61 +34,61 @@ class UserService
         );
     }
 
+    // 用户创建
     public function create(array $input): User
     {
         $body = new Body($input);
-        $username = $body->username;
-        $phone = $body->phone;
-        User::query()->where('username', $username)->first() && Tools::E("账号[{$username}]已注册");
-        User::query()->where('phone', $phone)->first() && Tools::E("手机号[{$phone}]已注册");
+        User::query()->where('username', $body->username)->first() && Tools::E("账号[{$body->username}]已注册");
+        User::query()->where('phone', $body->phone)->first() && Tools::E("手机号[{$body->phone}]已注册");
         $user = new User;
-        $user->phone = $phone;
-        $user->username = $username;
-        $user->password = $input['password'] ?? '123456';
-        $user->status = $input['status'] ?? 1;
-        $user->is_system = $input['is_system'] ?? 0;
-        $user->remark = $input['remark'] ?? '';
-        $user->role_id = $input['role_id'];
+        $user->phone = $body->phone;
+        $user->username = $body->username;
+        $user->password = $body->password ?: '123456';
+        $user->status = $body->status ?: 1;
+        $user->is_system = $body->is_system ?: 0;
+        $user->remark = $body->remark ?: '';
+        $user->role_id = $body->role_id;
         $user->save();
         return $user;
     }
 
+    // 用户更新
     public function update(int $id, array $input): User
     {
+        $body = new Body($input);
         $user = $this->user($this->findById($id));
-        switch ($input['op']) {
+        switch ($body->op) {
             // 重置密码
             case 'ResetPassword':
-                $user->password = $input['password'] ?? '123456';
+                $user->password = $body->password ?: '123456';
                 $user->save();
                 break;
             // 修改密码
             case 'ChangePassword':
                 // 验证旧密码
-                !Factory::container()->password->check($input['old_password'], $user->salt, $user->password) && Tools::E('旧密码不正确');
-                $user->password = $input['password'];
+                !Factory::container()->password->check($body->old_password, $user->salt, $user->password) && Tools::E('旧密码不正确');
+                $user->password = $body->password;
                 $user->save();
                 break;
             // 常规编辑
             default:
-                $username = $input['username'];
-                $phone = $input['phone'];
-                User::query()->where('username', $username)->where('id', '!=', $user->id)->first() && Tools::E("账号[{$username}]已注册");
-                User::query()->where('phone', $phone)->where('id', '!=', $user->id)->first() && Tools::E("手机号[{$phone}]已注册");
-                $user->phone = $phone;
-                $user->username = $username;
-                $user->password = $input['password'] ?? '123456';
-                $user->status = $input['status'] ?? 1;
-                $user->is_system = $input['is_system'] ?? 0;
-                $user->remark = $input['remark'] ?? '';
-                $user->role_id = $input['role_id'];
+                User::query()->where('username', $body->username)->where('id', '!=', $user->id)->first() && Tools::E("账号[{$body->username}]已注册");
+                User::query()->where('phone', $body->phone)->where('id', '!=', $user->id)->first() && Tools::E("手机号[{$body->phone}]已注册");
+                $user->phone = $body->phone;
+                $user->username = $body->username;
+                $user->password = $body->password ?: '123456';
+                $user->status = $body->status ?: 1;
+                $user->is_system = $body->is_system ?: 0;
+                $user->remark = $body->remark ?: '';
+                $user->role_id = $body->role_id;
                 $user->save();
                 break;
         }
         return $user;
     }
 
-    public function delete(int $id, ...$args)
+    // 用户删除
+    public function delete(int $id)
     {
         try {
             $this->findById($id)->delete();

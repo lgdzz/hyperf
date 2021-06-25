@@ -4,22 +4,18 @@ declare(strict_types=1);
 
 namespace lgdz\hyperf\service;
 
-use App\Model\File;
-use App\Utils\Tools;
+use lgdz\hyperf\model\File;
+use lgdz\hyperf\Tools;
+use lgdz\object\Query;
 
-class FileService extends AbstractResourceService
+class FileService
 {
     public function index(array $input)
     {
-        $page_size = $input['page_size'];
+        $query = new Query($input);
         return Tools::P(
-            File::query()->orderByDesc('id')->paginate((int)$page_size)
+            File::query()->orderByDesc('id')->paginate($query->size)
         );
-    }
-
-    public function read(int $id, ...$args)
-    {
-        return File::query()->where('id', $id)->firstOrFail();
     }
 
     public function create(array $input)
@@ -39,5 +35,20 @@ class FileService extends AbstractResourceService
     public function delete(int $id, ...$args)
     {
         File::destroy($id);
+    }
+
+    public function findById(int $id)
+    {
+        return File::query()->where('id', $id)->first();
+    }
+
+    /**
+     * 验证参数是否是File对象，如不是抛出异常
+     * @param $file
+     * @return File
+     */
+    public function file($file): File
+    {
+        return ($file instanceof File) ? $file : Tools::E('文件不存在');
     }
 }
