@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace lgdz\hyperf\exception\handler;
 
-use lgdz\exception\BusinessException;
+use lgdz\hyperf\exception\BusinessException;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\Validation\ValidationException;
@@ -37,7 +37,7 @@ class AppExceptionHandler extends ExceptionHandler
 
     private function response(ResponseInterface $response, string $message, int $status)
     {
-        $data = json_encode(Tools::Bad($message), JSON_UNESCAPED_UNICODE);
+        $data = json_encode(Tools::R()->bad($message), JSON_UNESCAPED_UNICODE);
         return $response->withStatus($status)->withHeader('Content-Type', 'application/json; charset=utf-8')->withBody(new SwooleStream($data));
     }
 

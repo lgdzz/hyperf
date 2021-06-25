@@ -17,7 +17,7 @@ use Hyperf\HttpServer\Contract\ResponseInterface;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use lgdz\Factory;
 use lgdz\lib\HttpResponse;
-use lgdz\exception\BusinessException;
+use lgdz\hyperf\exception\BusinessException;
 
 /**
  * Class Tools 助手
@@ -178,10 +178,10 @@ class Tools
         $query = new Query(Tools::I()->getQueryParams());
         if (!empty($append)) {
             foreach ($append as $key => $value) {
-                $body->$key = $value;
+                $query->$key = $value;
             }
         }
-        return $body;
+        return $query;
     }
 
     public static function Body(array $append = [])
