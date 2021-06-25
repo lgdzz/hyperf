@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace lgdz\exception\handler;
+namespace lgdz\hyperf\exception\handler;
 
 use lgdz\exception\BusinessException;
 use Hyperf\ExceptionHandler\ExceptionHandler;
