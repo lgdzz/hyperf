@@ -27,11 +27,12 @@ abstract class AbstractAuthService
     {
         $this->secret = config('lgdz.auth.secret', '1234567890');
         $this->ticket_key = config('lgdz.auth.ticket_key', 'user_ticket');
+        $this->redis = ApplicationContext::getContainer()->get(Redis::class);
 
         $this->jwt = Factory::container()->jwt;
         $this->jwt->setSecret($this->secret);
         $this->jwt->setTicketKey($this->ticket_key);
-        $this->redis = ApplicationContext::getContainer()->get(Redis::class);
+        $this->jwt->setRedis($this->redis);
     }
 
     /**
@@ -99,7 +100,7 @@ abstract class AbstractAuthService
         $user = User::query()->where('username', $username)->orWhere('phone', $username)->first();
         if (!($user instanceof User)) {
             Tools::E('账号或密码不正确');
-        } elseif (!$user->checkPassword($password)) {
+        } elseif (!Factory::container()->password->check($password, $user->salt, $user->password)) {
             Tools::E('账号或密码不正确');
         } elseif ($user->is_disable) {
             Tools::E('账号已停用');
@@ -111,23 +112,8 @@ abstract class AbstractAuthService
     // 登录成功返回
     protected function loginResult(User $user): array
     {
-        $agency_id = $user->org->pids[0] ?? ($user->org->id ?? 0);
-        $org = $user->org ?? null;
         // 生成token
-        [$token, $expire_at] = $this->issueAuthorization(
-            $user->id,
-            [
-                'username'       => $user->username,
-                'type'           => $user->type,
-                'role_id'        => $user->role_id,
-                'org_id'         => $user->org_id,
-                'parent_role_id' => is_null($user->role->parent) ? 0 : (int)$user->role->parent->id,
-                'agency_id'      => $agency_id,
-                'org_pid'        => is_null($org) ? 0 : $org->pid,
-                'grid_level_id'  => is_null($org) ? 0 : $org->grid_level_id,
-                'is_team'        => is_null($org) ? false : $org->grid_level_id === Tools::lowest_grid_level()
-            ]
-        );
+        [$token, $expire_at] = $this->issueAuthorization($user->id);
         // 生成路由菜单
         $router_config = $this->getRouterConfig($user->id, $user->role);
         $result = [];
@@ -137,8 +123,7 @@ abstract class AbstractAuthService
             'phone'     => $user->phone,
             'type'      => $user->type,
             'role_id'   => $user->role_id,
-            'role_name' => $user->role->name,
-            'org'       => is_null($org) ? ['系统'] : $org->path_name
+            'role_name' => $user->role->name
         ];
         $result['token'] = $token;
         $result['expire_at'] = $expire_at;

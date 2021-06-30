@@ -5,29 +5,28 @@ declare(strict_types=1);
 namespace lgdz\hyperf\service;
 
 use lgdz\Factory;
+use lgdz\object\Body;
+use lgdz\object\Query;
 use lgdz\hyperf\model\{Role, Rule};
 use lgdz\hyperf\Tools;
 
 class RoleService
 {
-    public function index(array $input)
+    public function index(Query $query)
     {
-        $status = $input['status'] ?? false;
-        $pid = $input['pid'] ?? false;
-
-        $list = Role::query()->when($status, function ($query, $value) {
+        $list = Role::query()->when($query->status, function ($query, $value) {
             return $query->where('status', $value);
-        })->when($pid, function ($query, $value) {
+        })->when($query->pid, function ($query, $value) {
             return $query->whereRaw("find_in_set({$value},path)");
         })->orderByRaw('pid asc,id asc')->get()->toArray();
 
         return empty($list) ? Factory::container()->tree->build($list, $list[0]['pid']) : [];
     }
 
-    public function create(array $input)
+    public function create(Body $input)
     {
         // 比对编辑者权限，如果超出则创建失败
-        $this->compareEditorRules($input['pid'], $input['rules']);
+        $this->compareEditorRules($input->pid, $input->rules);
         $role = new Role();
         $role->setFormData($input);
         $role->save();
@@ -39,7 +38,7 @@ class RoleService
 
     public function update(int $id, array $input)
     {
-        $role = Role::query()->where('id', $id)->firstOrFail();
+        $role = $this->role($this->findById($id));
         $role->setFormData($input, true);
         $role->save();
     }

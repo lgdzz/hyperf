@@ -5,6 +5,7 @@ declare (strict_types=1);
 namespace lgdz\hyperf\model;
 
 use Hyperf\DbConnection\Model\Model;
+use lgdz\object\Body;
 
 /**
  * @property int $id
@@ -64,14 +65,14 @@ class Role extends Model
         $this->attributes['rules'] = json_encode($value, JSON_UNESCAPED_UNICODE);
     }
 
-    public function setFormData(array $input, bool $isUpdate = false)
+    public function setFormData(Body $input, bool $isUpdate = false)
     {
         if (!$this->id) {
-            $this->pid = $input['pid'];
+            $this->pid = $input->pid;
         }
-        $this->name = $input['name'];
-        $this->status = $input['status'];
-        $this->remark = $input['remark'] ?? null;
-        $this->rules = $input['rules'];
+        $this->name = $input->name;
+        $this->status = $input->status;
+        $this->remark = $input->remark;
+        $this->rules = $input->rules;
     }
 }
