@@ -12,11 +12,11 @@ use lgdz\hyperf\Tools;
 
 class RoleService
 {
-    public function index(Query $query)
+    public function index(Query $input)
     {
-        $list = Role::query()->when($query->status, function ($query, $value) {
+        $list = Role::query()->when($input->status, function ($query, $value) {
             return $query->where('status', $value);
-        })->when($query->pid, function ($query, $value) {
+        })->when($input->pid, function ($query, $value) {
             return $query->whereRaw("find_in_set({$value},path)");
         })->orderByRaw('pid asc,id asc')->get()->toArray();
 
@@ -36,7 +36,7 @@ class RoleService
         $role->save();
     }
 
-    public function update(int $id, array $input)
+    public function update(int $id, Body $input)
     {
         $role = $this->role($this->findById($id));
         $role->setFormData($input, true);

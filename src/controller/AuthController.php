@@ -42,6 +42,17 @@ class AuthController
     }
 
     /**
+     * 退出登录
+     * @RequestMapping(path="/l/logout", methods="get")
+     * @Middleware(AuthUserMiddleware::class)
+     */
+    public function logout()
+    {
+        $this->AuthService->logout(Tools::U()->id);
+        return Tools::ok();
+    }
+
+    /**
      * 修改登录密码
      * @RequestMapping(path="/l/change_pwd", methods="put")
      * @Middleware(AuthUserMiddleware::class)
@@ -49,13 +60,6 @@ class AuthController
     public function changePwd()
     {
         $this->UserService->update(Tools::U()->id, Tools::Body(['op' => 'ChangePassword']));
-        return Tools::ok();
-    }
-
-    // 退出登录
-    public function logout()
-    {
-        $this->AuthService->logout();
         return Tools::ok();
     }
 }

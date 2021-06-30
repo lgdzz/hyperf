@@ -6,6 +6,8 @@ namespace lgdz\hyperf\middleware;
 
 use Hyperf\Utils\Context;
 use Hyperf\Di\Annotation\Inject;
+use lgdz\hyperf\model\User;
+use lgdz\hyperf\Tools;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -29,25 +31,13 @@ class AuthUserMiddleware implements MiddlewareInterface
         }
         // 验证登录信息
         $body = $this->AuthService->checkAuthorization((string)$token);
-        // 记录用户信息
-//        $user_info = new UserInfo();
-//        $user_info->user_id = $body->uid;
-//        $user_info->username = $body->username;
-//        $user_info->role_id = $body->role_id;
-//        $user_info->parent_role_id = $body->parent_role_id;
-//        $user_info->user_type = $body->type;
-//        $user_info->org_id = $body->org_id;
-//        $user_info->agency_id = $body->agency_id;
-//        $user_info->org_pid = $body->org_pid;
-//        $user_info->grid_level_id = $body->grid_level_id;
-//        $user_info->is_team = $body->is_team;
-//        Context::set('user_info', $user_info);
-        // 生成操作日志
-//        Context::set('oplog', [
-//            'user_id'    => $user_info->user_id,
-//            'browser'    => $request->getHeaderLine('user-agent'),
-//            'start_time' => microtime(true)
-//        ]);
+        // 用户信息保存到上下文
+        $this->user($body->uid);
         return $handler->handle($request);
+    }
+
+    public function user(int $user_id)
+    {
+        Tools::U(User::query()->where('id', $user_id)->first());
     }
 }

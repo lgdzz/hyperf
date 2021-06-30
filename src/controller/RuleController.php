@@ -4,13 +4,24 @@ declare(strict_types=1);
 
 namespace lgdz\hyperf\controller;
 
-use App\Request\RuleRequest;
-use App\Service\RuleService;
-use App\Utils\Tools;
 use Hyperf\Di\Annotation\Inject;
-use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\RequestMapping;
+use Hyperf\HttpServer\Annotation\Middlewares;
+use Hyperf\HttpServer\Annotation\Middleware;
+use lgdz\Factory;
+use lgdz\hyperf\middleware\AuthUserMiddleware;
+use lgdz\hyperf\middleware\AuthUserPowerMiddleware;
+use lgdz\hyperf\service\RuleService;
+use lgdz\hyperf\Tools;
 
+/**
+ * @Controller()
+ * @Middlewares({
+ *     @Middleware(AuthUserMiddleware::class),
+ *     @Middleware(AuthUserPowerMiddleware::class)
+ * })
+ */
 class RuleController
 {
     /**
@@ -19,40 +30,48 @@ class RuleController
      */
     protected $RuleService;
 
-    // 权限规则列表
-    public function index(RequestInterface $request, ResponseInterface $response)
+    /**
+     * @RequestMapping(path="/l/rule", methods="get")
+     */
+    public function index()
     {
-        $result = $this->RuleService->index([]);
-        $result = Tools::$factory->Tree()->tree($result->toArray(), 0);
-        return $response->json(Tools::R()->ok($result));
+        $result = $this->RuleService->index(Tools::Query());
+        return Tools::Ok($result);
     }
 
-    // 权限规则详情
-    public function read(int $id, ResponseInterface $response)
+    /**
+     * @RequestMapping(path="/l/rule/{id}", methods="get")
+     */
+    public function read(int $id)
     {
-        $result = $this->RuleService->read($id);
-        return $response->json(Tools::R()->ok($result));
+        $result = $this->RuleService->rule($this->RuleService->findById($id));
+        return Tools::Ok($result);
     }
 
-    // 创建新规则
-    public function create(RuleRequest $request, ResponseInterface $response)
+    /**
+     * @RequestMapping(path="/l/rule", methods="post")
+     */
+    public function create()
     {
-        $input = $request->getParsedBody();
-        $this->RuleService->create($input);
-        return $response->json(Tools::R(sprintf('创建权限规则[NAME:%s]', $input['name']))->ok());
+        $this->RuleService->create(Tools::Body());
+        return Tools::Ok();
     }
 
-    // 编辑规则
-    public function update(int $id, RuleRequest $request, ResponseInterface $response)
+    /**
+     * @RequestMapping(path="/l/rule/{id}", methods="put")
+     */
+    public function update(int $id)
     {
-        $this->RuleService->update($id, $request->getParsedBody());
-        return $response->json(Tools::R(sprintf('修改权限规则[ID:%s]', $id))->ok());
+        $this->RuleService->update($id, Tools::Body());
+        return Tools::Ok();
     }
 
-    // 删除规则
-    public function delete(int $id, ResponseInterface $response)
+    /**
+     * @RequestMapping(path="/l/rule/{id}", methods="delete")
+     */
+    public function delete(int $id)
     {
         $this->RuleService->delete($id);
-        return $response->json(Tools::R(sprintf('删除权限规则[ID:%s]', $id))->ok());
+        return Tools::Ok();
     }
 }

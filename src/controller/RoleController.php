@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace lgdz\hyperf\controller;
 
 use Hyperf\Di\Annotation\Inject;
-use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\RequestMapping;
 use Hyperf\HttpServer\Annotation\Middlewares;
@@ -46,7 +44,7 @@ class RoleController
      */
     public function read(int $id)
     {
-        $result = $this->RoleService->findById($id);
+        $result = $this->RoleService->role($this->RoleService->findById($id));
         return Tools::Ok($result);
     }
 

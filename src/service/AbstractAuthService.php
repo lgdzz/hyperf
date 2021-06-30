@@ -19,6 +19,7 @@ abstract class AbstractAuthService
     protected $secret;
     protected $ticket_key;
     protected $redis;
+    protected $sso = false;
 
     /**
      * JwtUtil constructor.
@@ -27,6 +28,7 @@ abstract class AbstractAuthService
     {
         $this->secret = config('lgdz.auth.secret', '1234567890');
         $this->ticket_key = config('lgdz.auth.ticket_key', 'user_ticket');
+        $this->sso = config('lgdz.auth.sso', false);
         $this->redis = ApplicationContext::getContainer()->get(Redis::class);
 
         $this->jwt = Factory::container()->jwt;
@@ -85,7 +87,7 @@ abstract class AbstractAuthService
      */
     public function checkAuthorization(string $Authorization)
     {
-        return $this->jwt->check($Authorization, false);
+        return $this->jwt->check($Authorization, $this->sso);
     }
 
     /**
@@ -100,7 +102,7 @@ abstract class AbstractAuthService
         $user = User::query()->where('username', $username)->orWhere('phone', $username)->first();
         if (!($user instanceof User)) {
             Tools::E('账号或密码不正确');
-        } elseif (!Factory::container()->password->check($password, $user->salt, $user->password)) {
+        } elseif (!$user->checkPassword($password)) {
             Tools::E('账号或密码不正确');
         } elseif ($user->is_disable) {
             Tools::E('账号已停用');
@@ -132,44 +134,10 @@ abstract class AbstractAuthService
         return $result;
     }
 
-    protected function loginResultByWxapp(User $user)
-    {
-        $agency_id = $user->org->pids[0] ?? ($user->org->id ?? 0);
-        // 生成token
-        [$token, $expire_at] = $this->issueAuthorization(
-            $user->id,
-            [
-                'username'       => $user->username,
-                'type'           => $user->type,
-                'role_id'        => $user->role_id,
-                'org_id'         => $user->org_id,
-                'parent_role_id' => is_null($user->role->parent) ? 0 : (int)$user->role->parent->id,
-                'agency_id'      => $agency_id,
-                'org_pid'        => $user->org->pid,
-                'grid_level_id'  => $user->org->grid_level_id,
-                'is_team'        => $user->org->grid_level_id === Tools::lowest_grid_level()
-            ]
-        );
-        $result = [];
-        $result['user'] = [
-            'user_id'       => $user->id,
-            'username'      => $user->username,
-            'phone'         => $user->phone,
-            'type'          => $user->type,
-            'role_id'       => $user->role_id,
-            'role_name'     => $user->role->name,
-            'org_id'        => $user->org_id,
-            'org_path_name' => $user->org->path_name,
-            'is_outsourced' => $user->org->outsourced === 1
-        ];
-        $result['token'] = $token;
-        $result['expire_at'] = $expire_at;
-        return $result;
-    }
-
     // 退出登录
-    public function logout(): void
+    public function logout(int $uid): void
     {
+        $this->redis->hDel($this->ticket_key, (string)$uid);
     }
 
     protected function powerHashKey(...$args)

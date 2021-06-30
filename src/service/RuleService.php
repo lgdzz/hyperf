@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace lgdz\hyperf\service;
 
+use lgdz\Factory;
 use lgdz\hyperf\model\Rule;
 use lgdz\hyperf\Tools;
+use lgdz\object\Body;
 
 class RuleService
 {
-    public function index(array $input)
+    public function index()
     {
-        return Rule::query()->orderByRaw('sort asc,id asc')->get();
+        $list = Rule::query()->orderByRaw('sort asc,id asc')->get();
+        return empty($list) ? Factory::container()->tree->build($list, $list[0]['pid']) : [];
     }
 
-    public function create(array $input): void
+    public function create(Body $input): void
     {
         $rule = new Rule();
         $rule->setFormData($input);
@@ -25,7 +28,7 @@ class RuleService
         $rule->save();
     }
 
-    public function update(int $id, array $input): void
+    public function update(int $id, Body $input): void
     {
         $rule = $this->rule($this->findById($id));
         $rule->setFormData($input);

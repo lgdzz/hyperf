@@ -5,6 +5,7 @@ declare (strict_types=1);
 namespace lgdz\hyperf\model;
 
 use Hyperf\DbConnection\Model\Model;
+use lgdz\object\Body;
 
 /**
  * @property int $id
@@ -50,16 +51,16 @@ class Rule extends Model
         return $this->hasMany(Rule::class, 'pid', 'id');
     }
 
-    public function setFormData(array $input)
+    public function setFormData(Body $input)
     {
-        $this->pid = $input['pid'] ?? 0;
-        $this->name = $input['name'];
-        $this->type = $input['type'];
-        $this->method = $input['method'] ?? null;
-        $this->permission_id = $input['permission_id'] ?? null;
-        $this->operation = $input['operation'] ?? null;
-        $this->service_router = $input['service_router'] ?? null;
-        $this->client_router = $input['client_router'] ?? null;
+        $this->pid = $input->pid ?: 0;
+        $this->name = $input->name;
+        $this->type = $input->type;
+        $this->method = $input->method;
+        $this->permission_id = $input->permission_id;
+        $this->operation = $input->operation;
+        $this->service_router = $input->service_router;
+        $this->client_router = $input->client_router;
     }
 
     public static function fullRulesIds($rule_ids)

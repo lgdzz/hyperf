@@ -4,13 +4,24 @@ declare(strict_types=1);
 
 namespace lgdz\hyperf\controller;
 
-use App\Request\UserRequest;
-use App\Service\UserService;
-use App\Utils\Tools;
 use Hyperf\Di\Annotation\Inject;
-use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\RequestMapping;
+use Hyperf\HttpServer\Annotation\Middlewares;
+use Hyperf\HttpServer\Annotation\Middleware;
+use lgdz\Factory;
+use lgdz\hyperf\middleware\AuthUserMiddleware;
+use lgdz\hyperf\middleware\AuthUserPowerMiddleware;
+use lgdz\hyperf\service\UserService;
+use lgdz\hyperf\Tools;
 
+/**
+ * @Controller()
+ * @Middlewares({
+ *     @Middleware(AuthUserMiddleware::class),
+ *     @Middleware(AuthUserPowerMiddleware::class)
+ * })
+ */
 class UserController
 {
     /**
@@ -19,46 +30,48 @@ class UserController
      */
     protected $UserService;
 
-    // 用户列表
-    public function index(RequestInterface $request, ResponseInterface $response)
+    /**
+     * @RequestMapping(path="/l/user", methods="get")
+     */
+    public function index()
     {
-        $result = $this->UserService->index(array_merge(
-            $request->getQueryParams(),
-            ['agency_id' => Tools::U()->agency_id]
-        ));
-        return $response->json(Tools::R()->ok($result));
+        $result = $this->UserService->index(Tools::Query());
+        return Tools::Ok($result);
     }
 
-    // 用户详情
-    public function read(int $id, RequestInterface $request, ResponseInterface $response)
+    /**
+     * @RequestMapping(path="/l/user/{id}", methods="get")
+     */
+    public function read(int $id)
     {
-        $result = $this->UserService->read($id, $request->getAttribute('agency_id', 0));
-        // 将org_id转成表单需要的数组结构
-        $org_id = $result->org->path;
-        $result = $result->toArray();
-        $result['org_id'] = $org_id;
-        return $response->json(Tools::R()->ok($result));
+        $result = $this->UserService->user($this->UserService->findById($id))->hiddenPassword();
+        return Tools::Ok($result);
     }
 
-    // 创建新用户
-    public function create(UserRequest $request, ResponseInterface $response)
+    /**
+     * @RequestMapping(path="/l/user", methods="post")
+     */
+    public function create()
     {
-        $this->UserService->create($request->getParsedBody());
-        return $response->json(Tools::R()->ok());
+        $this->UserService->create(Tools::Body());
+        return Tools::Ok();
     }
 
-    // 编辑用户
-    public function update(int $id, UserRequest $request, ResponseInterface $response)
+    /**
+     * @RequestMapping(path="/l/user/{id}", methods="put")
+     */
+    public function update(int $id)
     {
-        $this->UserService->update($id, $request->getParsedBody());
-        return $response->json(Tools::R()->ok());
+        $this->UserService->update($id, Tools::Body());
+        return Tools::Ok();
     }
 
-    // 删除用户
-    public function delete(int $id, ResponseInterface $response)
+    /**
+     * @RequestMapping(path="/l/user/{id}", methods="delete")
+     */
+    public function delete(int $id)
     {
         $this->UserService->delete($id);
-        return $response->json(Tools::R()->ok());
+        return Tools::Ok();
     }
-
 }
