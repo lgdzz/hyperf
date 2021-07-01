@@ -42,12 +42,13 @@ class AuthUserMiddleware implements MiddlewareInterface
         });
 
         // 用户信息保存到上下文
-        $this->user($body->uid);
+        $this->setUser($body->uid);
         return $handler->handle($request);
     }
 
-    public function user(int $user_id)
+    public function setUser(int $user_id)
     {
-        Tools::U(User::query()->where('id', $user_id)->first());
+//        Tools::U(User::query()->where('id', $user_id)->first());
+        Tools::U(User::findFromCache($user_id));
     }
 }

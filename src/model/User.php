@@ -8,6 +8,8 @@ use Hyperf\Database\Model\Events\Creating;
 use Hyperf\Database\Model\Events\Updating;
 use Hyperf\Database\Model\SoftDeletes;
 use Hyperf\DbConnection\Model\Model;
+use Hyperf\ModelCache\Cacheable;
+use Hyperf\ModelCache\CacheableInterface;
 use lgdz\Factory;
 use lgdz\hyperf\Tools;
 
@@ -29,9 +31,10 @@ use lgdz\hyperf\Tools;
  * @property \Carbon\Carbon $updated_at
  * @property-read Role $role
  */
-class User extends Model
+class User extends Model implements CacheableInterface
 {
     use SoftDeletes;
+    use Cacheable;
 
     /**
      * The table associated with the model.
@@ -51,7 +54,7 @@ class User extends Model
      * @var array
      */
     protected $casts = ['id' => 'integer', 'role_id' => 'integer', 'status' => 'integer', 'is_system' => 'integer', 'last_time' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
-
+    
     public function creating(Creating $event)
     {
         $this->salt = Factory::container()->helper->randomString();

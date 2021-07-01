@@ -8,6 +8,7 @@
   "require": {
     "php": ">=7.3",
     "hyperf/cache": "~2.1.0",
+    "hyperf/model-cache": "^2.1",
     "hyperf/command": "~2.1.0",
     "hyperf/config": "~2.1.0",
     "hyperf/crontab": "^2.1",
