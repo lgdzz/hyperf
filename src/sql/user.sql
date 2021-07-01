@@ -14,6 +14,8 @@ CREATE TABLE `user` (
   `last_time` int(11) DEFAULT NULL,
   `created_at` char(19) NOT NULL DEFAULT '',
   `updated_at` char(19) NOT NULL DEFAULT '',
+  `deleted_at` char(19) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户';
+  KEY `username` (`username`),
+  KEY `phone` (`phone`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COMMENT='用户';

@@ -12,8 +12,11 @@ use Hyperf\HttpServer\Annotation\Middleware;
 use lgdz\Factory;
 use lgdz\hyperf\middleware\AuthUserMiddleware;
 use lgdz\hyperf\middleware\AuthUserPowerMiddleware;
+use lgdz\hyperf\middleware\ValidatorMiddleware;
 use lgdz\hyperf\service\UserService;
 use lgdz\hyperf\Tools;
+use lgdz\hyperf\annotation\Validator;
+use lgdz\hyperf\validator\UserValidator;
 
 /**
  * @Controller()
@@ -50,6 +53,8 @@ class UserController
 
     /**
      * @RequestMapping(path="/l/user", methods="post")
+     * @Validator(UserValidator::class)
+     * @Middleware(ValidatorMiddleware::class)
      */
     public function create()
     {
@@ -59,6 +64,8 @@ class UserController
 
     /**
      * @RequestMapping(path="/l/user/{id}", methods="put")
+     * @Validator(UserValidator::class)
+     * @Middleware(ValidatorMiddleware::class)
      */
     public function update(int $id)
     {

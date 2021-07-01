@@ -9,6 +9,9 @@ use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\RequestMapping;
 use Hyperf\HttpServer\Annotation\Middleware;
 use lgdz\hyperf\middleware\AuthUserMiddleware;
+use lgdz\hyperf\middleware\ValidatorMiddleware;
+use lgdz\hyperf\validator\AuthValidator;
+use lgdz\hyperf\annotation\Validator;
 use lgdz\hyperf\service\AuthService;
 use lgdz\hyperf\service\UserService;
 use lgdz\hyperf\Tools;
@@ -33,6 +36,8 @@ class AuthController
     /**
      * 用户名登录
      * @RequestMapping(path="/l/login", methods="post")
+     * @Validator(AuthValidator::class)
+     * @Middleware(ValidatorMiddleware::class)
      */
     public function login()
     {
@@ -56,6 +61,8 @@ class AuthController
      * 修改登录密码
      * @RequestMapping(path="/l/change_pwd", methods="put")
      * @Middleware(AuthUserMiddleware::class)
+     * @Middleware(ValidatorMiddleware::class)
+     * @Validator(AuthValidator::class)
      */
     public function changePwd()
     {

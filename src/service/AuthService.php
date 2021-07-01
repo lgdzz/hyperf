@@ -15,8 +15,8 @@ class AuthService extends AbstractAuthService
     // 获取账户路由权限
     public function getRouterConfig(int $user_id, Role $role): array
     {
-        $rules     = $this->getRoleRules($role);
-        $api_list  = [];
+        $rules = $this->getRoleRules($role);
+        $api_list = [];
         $page_list = [];
         foreach ($rules as $rule) {
             $rule['type'] === 'api' && array_push($api_list, $rule);
@@ -43,7 +43,7 @@ class AuthService extends AbstractAuthService
             }
             $child = $this->clientRouters($list, $row['id']);
             if ($child) {
-                $item['router']   = $row['client_router'];
+                $item['router'] = $row['client_router'];
                 $item['children'] = $child;
             } else {
                 $item = $row['client_router'];
@@ -76,6 +76,6 @@ class AuthService extends AbstractAuthService
 
     public function powerKey(): string
     {
-        return 'power_ticket';
+        return config('lgdz.power.ticket_key', 'power_ticket');
     }
 }

@@ -12,6 +12,9 @@ use Hyperf\HttpServer\Annotation\Middleware;
 use lgdz\Factory;
 use lgdz\hyperf\middleware\AuthUserMiddleware;
 use lgdz\hyperf\middleware\AuthUserPowerMiddleware;
+use lgdz\hyperf\middleware\ValidatorMiddleware;
+use lgdz\hyperf\validator\RoleValidator;
+use lgdz\hyperf\annotation\Validator;
 use lgdz\hyperf\service\RoleService;
 use lgdz\hyperf\Tools;
 
@@ -50,6 +53,8 @@ class RoleController
 
     /**
      * @RequestMapping(path="/l/role", methods="post")
+     * @Validator(RoleValidator::class)
+     * @Middleware(ValidatorMiddleware::class)
      */
     public function create()
     {
@@ -59,6 +64,8 @@ class RoleController
 
     /**
      * @RequestMapping(path="/l/role/{id}", methods="put")
+     * @Validator(RoleValidator::class)
+     * @Middleware(ValidatorMiddleware::class)
      */
     public function update(int $id)
     {

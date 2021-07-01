@@ -25,16 +25,17 @@ class AuthUserPowerMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $router = $request->getAttribute(Dispatched::class)->handler->route ?? null;
-        if (is_null($router)) {
-            Tools::E('无效访问');
+        is_null($router) && Tools::E('无效访问');
+        if (config('lgdz.power.enable')) {
+            // 权限是通过请求方式+路由进行匹配验证
+            $power = sprintf('%s:%s', $request->getMethod(), $router);
+            $powers = $this->AuthService->getPowers(Tools::U()->id);
+            if (empty($powers)) {
+                throw new JwtAuthException('权限失效，请重新登录');
+            } elseif (!in_array($power, $powers['powers'])) {
+                Tools::E('无接口使用权限');
+            }
         }
-        $power = sprintf('%s:%s', $request->getMethod(), $router);
-        $powers = $this->AuthService->getPowers(Tools::U()->id);
-//        if (empty($powers)) {
-//            throw new JwtAuthException('权限失效，请重新登录');
-//        } elseif (!in_array($power, $powers['powers'])) {
-//            Tools::E('无接口使用权限');
-//        }
         return $handler->handle($request);
     }
 }
