@@ -32,7 +32,7 @@
       "lgdz\\hyperf\\": "src"
     },
     "files": [
-      "app\functions.php"
+      "../../../app/functions.php"
     ]
   },
   "extra": {
