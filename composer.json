@@ -30,7 +30,10 @@
   "autoload": {
     "psr-4": {
       "lgdz\\hyperf\\": "src"
-    }
+    },
+    "files": [
+      "app\functions.php"
+    ]
   },
   "extra": {
     "hyperf": {

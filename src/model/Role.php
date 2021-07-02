@@ -55,9 +55,9 @@ class Role extends Model
 
     public function getRulesAttribute($value)
     {
-        return array_map(function ($id) {
+        return $value ? array_map(function ($id) {
             return (int)$id;
-        }, json_decode($value, true));
+        }, json_decode($value, true)) : [];
     }
 
     public function setRulesAttribute($value)
