@@ -6,35 +6,43 @@ namespace lgdz\hyperf\service;
 
 use lgdz\hyperf\model\File;
 use lgdz\hyperf\Tools;
+use lgdz\object\Body;
 use lgdz\object\Query;
 
 class FileService
 {
-    public function index(array $input)
+    public function index(Query $input)
     {
         $query = new Query($input);
         return Tools::P(
-            File::query()->orderByDesc('id')->paginate($query->size)
+            File::query()->when($input->channel, function ($query, $value) {
+                return $query->where('channel', $value);
+            })->when($input->from_id, function ($query, $value) {
+                return $query->where('from_id', $value);
+            })->when($input->type, function ($query, $value) {
+                return $query->where('type', $value);
+            })->orderByDesc('id')->paginate($input->size)
         );
     }
 
-    public function create(array $input)
+    public function create(Body $input)
     {
         $file = new File();
-        $file->setFormData($input);
+        $file->channel = $input->channel;
+        $file->from_id = $input->from_id;
+        $file->type = $input->type;
+        $file->filename = $input->filename;
+        $file->filepath = $input->filepath;
+        $file->filesize = $input->filesize;
+        $file->mimetype = $input->mimetype;
+        $file->extension = $input->extension;
+        $file->extra = $input->extra;
         $file->save();
     }
 
-    public function update(int $id, array $input, ...$args)
+    public function delete($id)
     {
-        $file = File::query()->where('id', $id)->firstOrFail();
-        $file->setFormData($input);
-        $file->save();
-    }
-
-    public function delete(int $id, ...$args)
-    {
-        File::destroy($id);
+        // todo 删除图片
     }
 
     public function findById(int $id)

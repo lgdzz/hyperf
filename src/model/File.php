@@ -5,6 +5,7 @@ declare (strict_types=1);
 namespace lgdz\hyperf\model;
 
 use Hyperf\DbConnection\Model\Model;
+
 /**
  * @property int $id
  * @property int $c_id
@@ -22,9 +23,10 @@ use Hyperf\DbConnection\Model\Model;
  */
 class File extends Model
 {
-    const IMAGE = 1;
-    const VIDEO = 2;
-    const AUDIO = 3;
+    const TYPE_IMAGE = 1;
+    const TYPE_VIDEO = 2;
+    const TYPE_AUDIO = 3;
+    const TYPE_FILE = 4;
     /**
      * The table associated with the model.
      *
@@ -43,10 +45,12 @@ class File extends Model
      * @var array
      */
     protected $casts = ['id' => 'integer', 'c_id' => 'integer', 'type' => 'integer', 'filesize' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
+
     public function setExtraAttribute($value)
     {
         $this->attributes['value'] = json_encode($value, JSON_UNESCAPED_UNICODE);
     }
+
     public function getExtraAttribute($value)
     {
         return json_decode($value, true);
