@@ -48,7 +48,7 @@ class File extends Model
 
     public function setExtraAttribute($value)
     {
-        $this->attributes['value'] = json_encode($value, JSON_UNESCAPED_UNICODE);
+        $this->attributes['extra'] = json_encode($value, JSON_UNESCAPED_UNICODE);
     }
 
     public function getExtraAttribute($value)

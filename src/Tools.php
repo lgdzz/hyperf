@@ -194,4 +194,9 @@ class Tools
         }
         return $body;
     }
+
+    public static function container()
+    {
+        return ApplicationContext::getContainer();
+    }
 }

@@ -13,7 +13,6 @@ class FileService
 {
     public function index(Query $input)
     {
-        $query = new Query($input);
         return Tools::P(
             File::query()->when($input->channel, function ($query, $value) {
                 return $query->where('channel', $value);
