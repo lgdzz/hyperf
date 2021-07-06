@@ -54,7 +54,7 @@ class User extends Model implements CacheableInterface
      * @var array
      */
     protected $casts = ['id' => 'integer', 'role_id' => 'integer', 'status' => 'integer', 'is_system' => 'integer', 'last_time' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
-    
+
     public function creating(Creating $event)
     {
         $this->salt = Factory::container()->helper->randomString();
@@ -80,6 +80,8 @@ class User extends Model implements CacheableInterface
         $this->username = 'root';
         $this->password = '123456';
         $this->remark = '系统管理员账号';
+        $this->role_id = 1;
+        $this->phone = '';
         $this->save();
     }
 

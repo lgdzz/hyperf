@@ -53,6 +53,18 @@ class Role extends Model
         return $this->hasMany(Role::class, 'pid', 'id');
     }
 
+    public function initRootRole(): void
+    {
+        $this->save([
+            'pid'       => 0,
+            'path'      => '0,1',
+            'name'      => '系统管理员',
+            'master'    => 1,
+            'is_system' => 1,
+            'rules'     => '[]'
+        ]);
+    }
+
     public function getRulesAttribute($value)
     {
         return $value ? array_map(function ($id) {

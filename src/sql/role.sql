@@ -4,7 +4,7 @@ CREATE TABLE `role` (
   `path` varchar(255) NOT NULL DEFAULT '',
   `name` varchar(30) NOT NULL DEFAULT '',
   `master` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `is_disable` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '1-禁用',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '1-启用|2-禁用',
   `is_system` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '1-系统默认',
   `remark` varchar(255) DEFAULT NULL COMMENT '角色描述',
   `rules` varchar(2000) NOT NULL DEFAULT '',

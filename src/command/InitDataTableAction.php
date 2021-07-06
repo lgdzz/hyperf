@@ -8,6 +8,7 @@ use Hyperf\Command\Command;
 use Hyperf\Database\Schema\Schema;
 use Hyperf\Database\Schema\Blueprint;
 use Hyperf\DbConnection\Db;
+use lgdz\hyperf\model\Role;
 use lgdz\hyperf\model\User;
 
 class InitDataTableAction
@@ -37,8 +38,13 @@ class InitDataTableAction
             $sql = file_get_contents(__DIR__ . '/../sql/' . $table . '.sql');
             Db::insert($sql);
             $this->command->line('导入[' . $table . ']表完成', 'info');
-            if ($table === 'user') {
-                (new User())->initRootUser();
+            switch ($table) {
+                case 'user':
+                    (new User())->initRootUser();
+                    break;
+                case 'role':
+                    (new Role())->initRootRole();
+                    break;
             }
         } else {
             $this->command->line('导入[' . $table . ']表已存在', 'info');
