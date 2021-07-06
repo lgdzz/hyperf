@@ -57,11 +57,11 @@ class Role extends Model
     {
         $this->save([
             'pid'       => 0,
-            'path'      => '0,1',
+            'path'      => [0, 1],
             'name'      => '系统管理员',
             'master'    => 1,
             'is_system' => 1,
-            'rules'     => '[]'
+            'rules'     => []
         ]);
     }
 
