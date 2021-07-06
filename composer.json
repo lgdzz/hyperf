@@ -25,7 +25,8 @@
     "hyperf/redis": "~2.1.0",
     "hyperf/validation": "^2.1",
     "lgdz/factory": "v2.0.x-dev",
-    "ext-json": "*"
+    "ext-json": "*",
+    "overtrue/wechat": "~5.0"
   },
   "autoload": {
     "psr-4": {
