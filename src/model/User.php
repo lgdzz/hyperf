@@ -76,7 +76,7 @@ class User extends Model implements CacheableInterface
 
     public function initRootUser(): void
     {
-        $this->type = self::MASTER;
+        $this->type = 'master';
         $this->username = 'root';
         $this->password = '123456';
         $this->remark = '系统管理员账号';
