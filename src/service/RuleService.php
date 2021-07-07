@@ -13,8 +13,8 @@ class RuleService
 {
     public function index()
     {
-        $list = Rule::query()->orderByRaw('sort asc,id asc')->get();
-        return empty($list) ? Factory::container()->tree->build($list, $list[0]['pid']) : [];
+        $list = Rule::query()->orderByRaw('sort asc,id asc')->get()->toArray();
+        return empty($list) ? [] : Factory::container()->tree->build($list, $list[0]['pid']);
     }
 
     public function create(Body $input): void

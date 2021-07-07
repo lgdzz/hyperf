@@ -16,4 +16,4 @@ CREATE TABLE `file` (
   KEY `channel` (`channel`),
   KEY `from_id` (`from_id`),
   KEY `type` (`type`)
-) ENGINE=InnoDB AUTO_INCREMENT=155 DEFAULT CHARSET=utf8mb4 COMMENT='文件';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='文件';

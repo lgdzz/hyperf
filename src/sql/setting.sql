@@ -5,4 +5,4 @@ CREATE TABLE `setting` (
   `created_at` char(19) NOT NULL DEFAULT '',
   `updated_at` char(19) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='配置';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='配置';

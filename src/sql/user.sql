@@ -18,4 +18,4 @@ CREATE TABLE `user` (
   PRIMARY KEY (`id`),
   KEY `username` (`username`),
   KEY `phone` (`phone`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COMMENT='用户';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='用户';

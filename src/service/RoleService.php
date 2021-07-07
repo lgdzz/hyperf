@@ -20,7 +20,7 @@ class RoleService
             return $query->whereRaw("find_in_set({$value},path)");
         })->orderByRaw('pid asc,id asc')->get()->toArray();
 
-        return empty($list) ? Factory::container()->tree->build($list, $list[0]['pid']) : [];
+        return empty($list) ? [] : Factory::container()->tree->build($list, $list[0]['pid']);
     }
 
     public function create(Body $input)
