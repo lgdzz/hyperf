@@ -6,7 +6,6 @@ namespace lgdz\hyperf\command;
 
 use Hyperf\Command\Command;
 use Hyperf\Database\Schema\Schema;
-use Hyperf\Database\Schema\Blueprint;
 use Hyperf\DbConnection\Db;
 use lgdz\hyperf\model\Role;
 use lgdz\hyperf\model\Rule;
@@ -33,7 +32,7 @@ class InitDataTableAction
 
         $this->importData(new Role());
         $this->importData(new Rule());
-        (new User())->initRootUser();
+        $this->importData(new User());
         return true;
     }
 
@@ -50,10 +49,16 @@ class InitDataTableAction
 
     private function importData($model)
     {
-        // 清空表
+        $table = $model->getTable();
         $model->truncate();
-        // 导入数据
-        $sql = file_get_contents(__DIR__ . '/../sql/' . $table . '_insert.sql');
-        Db::insert($sql);
+        switch ($table) {
+            case 'user':
+                $model->initRootUser();
+                break;
+            default:
+                $sql = file_get_contents(__DIR__ . '/../sql/' . $model->getTable() . '_insert.sql');
+                Db::insert($sql);
+                break;
+        }
     }
 }
