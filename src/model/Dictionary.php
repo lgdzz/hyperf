@@ -12,6 +12,7 @@ use Hyperf\DbConnection\Model\Model;
  * @property string $name
  * @property string $description
  * @property string $value
+ * @property string $value_type
  * @property string $path
  * @property int $sort
  */

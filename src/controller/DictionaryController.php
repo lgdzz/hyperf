@@ -5,9 +5,28 @@ declare(strict_types=1);
 namespace lgdz\hyperf\controller;
 
 use Hyperf\Di\Annotation\Inject;
+use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\RequestMapping;
+use Hyperf\HttpServer\Annotation\Middleware;
+use Hyperf\HttpServer\Annotation\Middlewares;
+use lgdz\hyperf\annotation\Validator;
+use lgdz\hyperf\middleware\AuthUserMiddleware;
+use lgdz\hyperf\middleware\AuthUserPowerMiddleware;
+use lgdz\hyperf\middleware\ValidatorMiddleware;
+use lgdz\hyperf\validator\DictionaryValidator;
 use lgdz\hyperf\service\DictionaryService;
 use lgdz\hyperf\Tools;
 
+/**
+ * 字典管理
+ * Class DictionaryController
+ * @package lgdz\hyperf\controller
+ * @Controller()
+ * @Middlewares({
+ *     @Middleware(AuthUserMiddleware::class),
+ *     @Middleware(AuthUserPowerMiddleware::class)
+ * })
+ */
 class DictionaryController
 {
     /**
@@ -16,39 +35,57 @@ class DictionaryController
      */
     protected $DictionaryService;
 
-    public function index()
+    /**
+     * 字典列表(树结构)
+     * @RequestMapping(path="/l/dictionary", methods="get")
+     */
+    public function index(RequestInterface $request)
     {
         $result = $this->DictionaryService->index();
         return Tools::Ok($result);
     }
 
-    public function read(int $id, ResponseInterface $response)
+    /**
+     * 字典详情
+     * @RequestMapping(path="/l/dictionary/{id}", methods="get")
+     */
+    public function read(int $id)
     {
-        $model = $this->DictionaryService->read($id);
-        if ($model->pid > 0) {
-            $model->parent = $this->DictionaryService->read($model->pid);
-        } else {
-            $model->parent = ['id' => 0, 'description' => '根字典'];
-        }
-        return $response->json(Tools::R()->ok($model));
+        $result = $this->DictionaryService->dictionary($this->DictionaryService->findById($id));
+        return Tools::Ok($result);
     }
 
-    public function create(RequestInterface $request, ResponseInterface $response)
+    /**
+     * 字典添加
+     * @RequestMapping(path="/l/dictionary", methods="post")
+     * @Middleware(ValidatorMiddleware::class)
+     * @Validator(DictionaryValidator::class)
+     */
+    public function create()
     {
-        $input = $request->getParsedBody();
-        $this->DictionaryService->create($input);
-        return $response->json(Tools::R(sprintf('添加字典[NAME:%s]', $input['name']))->ok());
+        $this->DictionaryService->create(Tools::Body());
+        return Tools::Ok();
     }
 
-    public function update(int $id, RequestInterface $request, ResponseInterface $response)
+    /**
+     * 字典更新
+     * @RequestMapping(path="/l/dictionary/{id}", methods="put")
+     * @Middleware(ValidatorMiddleware::class)
+     * @Validator(DictionaryValidator::class)
+     */
+    public function update(int $id)
     {
-        $this->DictionaryService->update($id, $request->getParsedBody());
-        return $response->json(Tools::R(sprintf('修改字典[ID:%s]', $id))->ok());
+        $this->DictionaryService->update($id, Tools::Body());
+        return Tools::Ok();
     }
 
-    public function delete(int $id, ResponseInterface $response)
+    /**
+     * 字典删除
+     * @RequestMapping(path="/l/dictionary/{id}", methods="delete")
+     */
+    public function delete(int $id)
     {
         $this->DictionaryService->delete($id);
-        return $response->json(Tools::R(sprintf('删除字典[ID:%s]', $id))->ok());
+        return Tools::Ok();
     }
 }

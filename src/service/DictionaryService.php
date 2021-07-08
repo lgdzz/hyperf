@@ -13,9 +13,7 @@ class DictionaryService
 {
     public function index()
     {
-        $list = Dictionary::query()->when($id, function ($query, $value) {
-            return $query->whereRaw("find_in_set({$value},path)");
-        })->orderByRaw('sort asc,id asc')->get()->toArray();
+        $list = Dictionary::query()->orderByRaw('sort asc,id asc')->get()->toArray();
         return empty($list) ? [] : Factory::container()->tree->build($list, $list[0]['pid']);
     }
 
@@ -46,17 +44,17 @@ class DictionaryService
         }
         $model = new Dictionary();
         $model->pid = $pid;
-        $model->name = $input->name;
+        $model->name = $input->name ?? '';
         $model->description = $input->description;
         $model->value = $input->value ?: $input->description;
         $model->sort = $input->sort ?: 255;
         $model->save();
-        // 保存path
+        // 二次处理保存
         $model->path = $path . ',' . $model->id;
-        if (!$model->name && isset($parent)) {
-            $model->name = $parent->name . '_' . $model->id;
-        }
+        $model->value_type = is_numeric($model->value) ? 'int' : 'string';
+        $model->name = $model->name ?: ($parent->name . '_' . $model->id);
         $model->save();
+        $this->buildCache();
     }
 
     public function update(int $id, Body $input)
@@ -67,8 +65,10 @@ class DictionaryService
         }
         $model->description = $input->description;
         $model->value = $input->value ?: $input->description;
+        $model->value_type = is_numeric($model->value) ? 'int' : 'string';
         $model->sort = $input->sort ?: 255;
         $model->save();
+        $this->buildCache();
     }
 
     public function delete(int $id)
@@ -78,30 +78,21 @@ class DictionaryService
         }
         $model = $this->dictionary($this->findById($id));
         $model->delete();
+        $this->buildCache();
     }
 
-//    public function get(string $name)
-//    {
-//        $root_id = Dictionary::query()->where('name', $name)->value('id');
-//        $tree = $this->index(['id' => $root_id]);
-//        return $tree[0]['children'];
-//    }
-//
-//    protected function setCache()
-//    {
-//        go(function () {
-//            $list = Dictionary::query()->get();
-//            $values = [];
-//            foreach ($list as $row) {
-//                if ($row->description !== $row->value) {
-//                    preg_match('/(\w+)_\w+/', $row->name, $result);
-//                    if (isset($result[1])) {
-//                        $values[$result[1] . $row->value] = $row->description;
-//                    }
-//                }
-//            }
-//            $this->Redis->hMSet('dictionary', $values);
-//            Tools::$dictionary = $values;
-//        });
-//    }
+    // 更新内存中的缓存字典
+    public function buildCache()
+    {
+        $list = Dictionary::query()->selectRaw('id,pid,description label,name,value,value_type')->orderByRaw('sort asc,id asc')->get()->toArray();
+        $id_index_list = array_column($list, 'label', 'id');
+        $name_index_tree = array_column(empty($list) ? [] : Tools::F()->tree->build(array_map(function ($row) {
+            // 如果数据值为int则转换类型
+            if ($row['value_type'] === 'int') {
+                $row['value'] = (int)$row['value'];
+            }
+            return $row;
+        }, $list), $list[0]['pid']), null, 'name');
+        Tools::D2Cache($id_index_list, $name_index_tree);
+    }
 }
