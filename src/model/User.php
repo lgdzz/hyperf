@@ -16,7 +16,6 @@ use lgdz\hyperf\Tools;
 /**
  * @property int $id
  * @property string $type
- * @property int $role_id
  * @property string $phone
  * @property string $username
  * @property string $password
@@ -29,7 +28,7 @@ use lgdz\hyperf\Tools;
  * @property int $last_time
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
- * @property-read Role $role
+ * @property-read Role[] $roles
  */
 class User extends Model implements CacheableInterface
 {
@@ -53,7 +52,7 @@ class User extends Model implements CacheableInterface
      *
      * @var array
      */
-    protected $casts = ['id' => 'integer', 'role_id' => 'integer', 'status' => 'integer', 'is_system' => 'integer', 'last_time' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
+    protected $casts = ['id' => 'integer', 'status' => 'integer', 'is_system' => 'integer', 'last_time' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
 
     public function creating(Creating $event)
     {
@@ -69,9 +68,9 @@ class User extends Model implements CacheableInterface
     }
 
     // 关联用户角色
-    public function role()
+    public function roles()
     {
-        return $this->belongsTo(Role::class, 'role_id', 'id');
+        return $this->belongsToMany(Role::class, 'user_role');
     }
 
     public function initRootUser(): void
@@ -80,7 +79,6 @@ class User extends Model implements CacheableInterface
         $this->username = 'root';
         $this->password = '123456';
         $this->remark = '系统管理员账号';
-        $this->role_id = 1;
         $this->phone = '';
         $this->save();
     }

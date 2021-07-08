@@ -1,7 +1,6 @@
 CREATE TABLE `user` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `type` enum('master','branch') DEFAULT 'branch',
-  `role_id` int(11) unsigned NOT NULL,
   `phone` char(11) NOT NULL DEFAULT '',
   `username` varchar(30) NOT NULL DEFAULT '',
   `password` char(32) NOT NULL DEFAULT '',

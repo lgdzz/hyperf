@@ -29,6 +29,7 @@ class InitDataTableAction
         $this->importTable('rule');
         $this->importTable('setting');
         $this->importTable('user');
+        $this->importTable('user_role');
 
         $this->importData(new Role());
         $this->importData(new Rule());

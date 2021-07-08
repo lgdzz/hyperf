@@ -117,15 +117,13 @@ abstract class AbstractAuthService
         // 生成token
         [$token, $expire_at] = $this->issueAuthorization($user->id);
         // 生成路由菜单
-        $router_config = $this->getRouterConfig($user->id, $user->role);
+        $router_config = $this->getRouterConfig($user->id, $user->roles);
         $result = [];
         $result['user'] = [
-            'user_id'   => $user->id,
-            'username'  => $user->username,
-            'phone'     => $user->phone,
-            'type'      => $user->type,
-            'role_id'   => $user->role_id,
-            'role_name' => $user->role->name
+            'user_id'  => $user->id,
+            'username' => $user->username,
+            'phone'    => $user->phone,
+            'type'     => $user->type
         ];
         $result['token'] = $token;
         $result['expire_at'] = $expire_at;
