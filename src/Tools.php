@@ -25,6 +25,25 @@ use lgdz\hyperf\exception\BusinessException;
  */
 class Tools
 {
+    // 字典缓存容器
+    protected static $dictionary = ['id_index_list' => [], 'name_index_tree' => []];
+
+    public static function D2Cache(array $id_index_list, array $name_index_tree)
+    {
+        static::$dictionary['id_index_list'] = $id_index_list;
+        static::$dictionary['name_index_tree'] = $name_index_tree;
+    }
+
+    public static function D2Label(int $id)
+    {
+        return static::$dictionary['id_index_list'][$id] ?? '-';
+    }
+
+    public static function D2Tree(string $name)
+    {
+        return static::$dictionary['name_index_tree'][$name] ?? [];
+    }
+
     /**
      * @param User|null $user
      * @return User
