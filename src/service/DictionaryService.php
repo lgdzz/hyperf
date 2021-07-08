@@ -4,55 +4,52 @@ declare(strict_types=1);
 
 namespace lgdz\hyperf\service;
 
-use App\Exception\BusinessException;
-use App\Model\Dictionary;
-use App\Utils\Tools;
-use Hyperf\Di\Annotation\Inject;
-use Hyperf\Redis\Redis;
+use lgdz\Factory;
+use lgdz\hyperf\model\Dictionary;
+use lgdz\hyperf\Tools;
+use lgdz\object\Body;
 
 class DictionaryService
 {
-    /**
-     * @Inject()
-     * @var Redis
-     */
-    private $Redis;
-
-    public function index(array $input)
+    public function index()
     {
-        $name = $input['name'] ?? false;
-        $id   = $input['id'] ?? false;
-        $list = Dictionary::query()->when($name, function ($query, $value) {
-            return $query->where('name', $value);
-        })->when($id, function ($query, $value) {
+        $list = Dictionary::query()->when($id, function ($query, $value) {
             return $query->whereRaw("find_in_set({$value},path)");
         })->orderByRaw('sort asc,id asc')->get()->toArray();
-        return Tools::$factory->Tree()->tree($list, 0);
+        return empty($list) ? [] : Factory::container()->tree->build($list, $list[0]['pid']);
     }
 
-    public function read(int $id): Dictionary
+    public function findById(int $id)
     {
-        return Dictionary::query()->where('id', $id)->firstOrFail();
+        return Dictionary::query()->where('id', $id)->first();
     }
 
-    public function create(array $input)
+    /**
+     * 验证参数是否是Dictionary对象，如不是抛出异常
+     * @param $dictionary
+     * @return Dictionary
+     */
+    public function dictionary($dictionary): Role
     {
-        $pid  = $input['pid'] ?? 0;
-        $name = $input['name'] ?? '';
-        $path = '0';
+        return (dictionary instanceof Dictionary) ? $dictionary : Tools::E('字典不存在');
+    }
+
+    public function create(Body $input)
+    {
+        $pid = (int)$input->pid;
         if ($pid > 0) {
             $parent = Dictionary::query()->where('id', $pid)->first();
-            if (!($parent instanceof Dictionary)) {
-                throw new BusinessException('parent级不存在');
-            }
+            !($parent instanceof Dictionary) && Tools::E('上级字典不存在');
             $path = $parent->path;
+        } else {
+            $path = '0';
         }
-        $model              = new Dictionary();
-        $model->pid         = $pid;
-        $model->name        = $name;
-        $model->description = $input['description'];
-        $model->value       = $input['value'] !== '' ? $input['value'] : $input['description'];
-        $model->sort        = $input['sort'] ?? 255;
+        $model = new Dictionary();
+        $model->pid = $pid;
+        $model->name = $input->name;
+        $model->description = $input->description;
+        $model->value = $input->value ?: $input->description;
+        $model->sort = $input->sort ?: 255;
         $model->save();
         // 保存path
         $model->path = $path . ',' . $model->id;
@@ -60,67 +57,51 @@ class DictionaryService
             $model->name = $parent->name . '_' . $model->id;
         }
         $model->save();
-        $this->setCache();
     }
 
-    public function update(int $id, array $input)
+    public function update(int $id, Body $input)
     {
-        $model = $this->read($id);
-        if (isset($input['name'])) {
-            $model->name = $input['name'];
+        $model = $this->dictionary($this->findById($id));
+        if ($input->name) {
+            $model->name = $input->name;
         }
-        $model->description = $input['description'];
-        $model->value       = $input['value'] !== '' ? $input['value'] : $input['description'];
-        $model->sort        = $input['sort'] ?? 255;
+        $model->description = $input->description;
+        $model->value = $input->value ?: $input->description;
+        $model->sort = $input->sort ?: 255;
         $model->save();
-        $this->setCache();
     }
 
     public function delete(int $id)
     {
         if (Dictionary::query()->where('pid', $id)->count()) {
-            throw new BusinessException('存在子级字典，无法直接删除');
+            Tools::E('请删除子级字典后再删除');
         }
-        Dictionary::query()->where('id', $id)->delete();
-        $this->setCache();
+        $model = $this->dictionary($this->findById($id));
+        $model->delete();
     }
 
-    public function get(string $name)
-    {
-        $root_id = Dictionary::query()->where('name', $name)->value('id');
-        $tree    = $this->index(['id' => $root_id]);
-        return $tree[0]['children'];
-    }
-
-    protected function setCache()
-    {
-        go(function () {
-            $list   = Dictionary::query()->get();
-            $values = [];
-            foreach ($list as $row) {
-                if ($row->description !== $row->value) {
-                    preg_match('/(\w+)_\w+/', $row->name, $result);
-                    if (isset($result[1])) {
-                        $values[$result[1] . $row->value] = $row->description;
-                    }
-                }
-            }
-            $this->Redis->hMSet('dictionary', $values);
-            Tools::$dictionary = $values;
-        });
-    }
-
-    public function getEnum(string $name)
-    {
-        return array_column(
-            array_map(function (Dictionary $row) {
-                return [
-                    'name'  => $row->description,
-                    'value' => $row->value
-                ];
-            }, Dictionary::query()->where('pid', Dictionary::query()->where('name', $name)->value('id'))->get()->all()),
-            'name',
-            'value'
-        );
-    }
+//    public function get(string $name)
+//    {
+//        $root_id = Dictionary::query()->where('name', $name)->value('id');
+//        $tree = $this->index(['id' => $root_id]);
+//        return $tree[0]['children'];
+//    }
+//
+//    protected function setCache()
+//    {
+//        go(function () {
+//            $list = Dictionary::query()->get();
+//            $values = [];
+//            foreach ($list as $row) {
+//                if ($row->description !== $row->value) {
+//                    preg_match('/(\w+)_\w+/', $row->name, $result);
+//                    if (isset($result[1])) {
+//                        $values[$result[1] . $row->value] = $row->description;
+//                    }
+//                }
+//            }
+//            $this->Redis->hMSet('dictionary', $values);
+//            Tools::$dictionary = $values;
+//        });
+//    }
 }
