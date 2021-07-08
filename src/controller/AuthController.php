@@ -60,8 +60,10 @@ class AuthController
     /**
      * 修改登录密码
      * @RequestMapping(path="/l/change_pwd", methods="put")
-     * @Middleware(AuthUserMiddleware::class)
-     * @Middleware(ValidatorMiddleware::class)
+     * @Middlewares({
+     *     @Middleware(AuthUserMiddleware::class),
+     *     @Middleware(ValidatorMiddleware::class)
+     * })
      * @Validator(AuthValidator::class)
      */
     public function changePwd()

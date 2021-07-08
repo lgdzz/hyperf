@@ -53,7 +53,7 @@ class RuleController
 
     /**
      * @RequestMapping(path="/l/rule", methods="post")
-     * @Validator(RuleService::class)
+     * @Validator(RuleValidator::class)
      * @Middleware(ValidatorMiddleware::class)
      */
     public function create()
@@ -64,7 +64,7 @@ class RuleController
 
     /**
      * @RequestMapping(path="/l/rule/{id}", methods="put")
-     * @Validator(RuleService::class)
+     * @Validator(RuleValidator::class)
      * @Middleware(ValidatorMiddleware::class)
      */
     public function update(int $id)

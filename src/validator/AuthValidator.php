@@ -28,6 +28,13 @@ class AuthValidator implements ValidatorInterface
                     Tools::E('请输入密码');
                 }
                 break;
+            case 'changePwd':
+                if (!isset($data['old_password']) || !$data['old_password']) {
+                    Tools::E('请输入旧密码');
+                } elseif (!isset($data['password']) || !$data['password']) {
+                    Tools::E('请输入新密码');
+                }
+                break;
         }
     }
 }
