@@ -117,7 +117,7 @@ abstract class AbstractAuthService
         // 生成token
         [$token, $expire_at] = $this->issueAuthorization($user->id);
         // 生成路由菜单
-        $router_config = $this->getRouterConfig($user->id, $user->roles);
+        $router_config = $this->getRouterConfig($user);
         $result = [];
         $result['user'] = [
             'user_id'  => $user->id,
@@ -145,7 +145,7 @@ abstract class AbstractAuthService
     }
 
     // 获取客户端路由配置
-    abstract public function getRouterConfig(int $user_id, Role $role): array;
+    abstract public function getRouterConfig(User $user): array;
 
     // 用户账户权限集KEY
     abstract public function powerKey(): string;
@@ -153,15 +153,27 @@ abstract class AbstractAuthService
 
     /**
      * 获取角色完整权限规则列表
-     * @param Role $role
+     * @param User $user
      * @return array
      */
-    public function getRoleRules(Role $role)
+    public function getRoleRules(User $user)
     {
-        if ($role->master) {
+        // 系统超级账号
+        $master = false;
+        $rule_ids = [];
+        foreach ($user->roles as $role) {
+            if ($role->master) {
+                $master = true;
+                break;
+            } else {
+                // 合并多个角色权限
+                $rule_ids = array_merge($rule_ids, $role->rules);
+            }
+        }
+        if ($master) {
             return Rule::query()->orderByRaw('sort asc,id asc')->get()->toArray();
         } else {
-            $rule_ids = Rule::fullRulesIds($role->rules);
+            $rule_ids = Rule::fullRulesIds($rule_ids);
             return Rule::query()->orderByRaw('sort asc,id asc')->find($rule_ids)->toArray();
         }
     }
@@ -173,18 +185,15 @@ abstract class AbstractAuthService
     }
 
     // 写入powers到redis
-    public function setPowers(array $api_list, int $user_id, Role $role)
+    public function setPowers(array $api_list, int $user_id)
     {
         $powers = array_map(function ($item) {
             return $item['method'] . ':' . $item['service_router'];
         }, $api_list);
 
         $this->redis->hSet($this->powerKey(), $this->powerHashKey($user_id), serialize([
-            'parent_role_id' => is_null($role->parent) ? 0 : (int)$role->parent->id,
-            'role_id'        => $role->id,
-            'role_name'      => $role->name,
-            'user_id'        => $user_id,
-            'powers'         => $powers
+            'user_id' => $user_id,
+            'powers'  => $powers
         ]));
     }
 }

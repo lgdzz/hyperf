@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace lgdz\hyperf\service;
 
 use lgdz\hyperf\model\Role;
+use lgdz\hyperf\model\User;
 
 /**
  * Class AuthService 登录权限认证服务（适用于'ant design vue admin'）
@@ -13,9 +14,10 @@ use lgdz\hyperf\model\Role;
 class AuthService extends AbstractAuthService
 {
     // 获取账户路由权限
-    public function getRouterConfig(int $user_id, Role $role): array
+    public function getRouterConfig(User $user): array
     {
-        $rules = $this->getRoleRules($role);
+        $user_id = $user->id;
+        $rules = $this->getRoleRules($user);
         $api_list = [];
         $page_list = [];
         foreach ($rules as $rule) {
@@ -27,7 +29,7 @@ class AuthService extends AbstractAuthService
             'routes'      => $this->clientRouters($page_list, 0)
         ];
 
-        $this->setPowers($api_list, $user_id, $role);
+        $this->setPowers($api_list, $user_id);
 
         return $result;
     }
