@@ -82,6 +82,7 @@ class User extends Model implements CacheableInterface
         $this->remark = '系统管理员账号';
         $this->phone = '';
         $this->save();
+        UserRole::insert(['user_id' => 1, 'role_id' => 1]);
     }
 
     // 验证密码
