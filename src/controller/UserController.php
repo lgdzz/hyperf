@@ -38,7 +38,7 @@ class UserController
      */
     public function index()
     {
-        $result = $this->UserService->index(Tools::Query());
+        $result = $this->UserService->index(Tools::Query(['site_id' => Tools::SiteId()]));
         return Tools::Ok($result);
     }
 
@@ -58,7 +58,7 @@ class UserController
      */
     public function create()
     {
-        $this->UserService->create(Tools::Body());
+        $this->UserService->create(Tools::Body(['site_id' => Tools::SiteId()]));
         return Tools::Ok();
     }
 

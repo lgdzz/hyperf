@@ -17,7 +17,7 @@ class UserService
     {
         $paginate = User::query()->with('role')->when($input->status, function ($query, $value) {
             return $query->where('status', $value);
-        })->when(Tools::SiteId(), function ($query, $value) {
+        })->when($input->site_id, function ($query, $value) {
             return $query->where('site_id', $value);
         })->when($input->username, function ($query, $value) {
             return $query->where('username', 'like', '%' . $value . '%');
@@ -41,7 +41,7 @@ class UserService
         User::query()->where('username', $input->username)->first() && Tools::E("账号[{$input->username}]已注册");
         User::query()->where('phone', $input->phone)->first() && Tools::E("手机号[{$input->phone}]已注册");
         $user = new User;
-        $user->site_id = $input->site_id ?? Tools::SiteId();
+        $user->site_id = $input->site_id ?? 0;
         $user->phone = $input->phone ?: '';
         $user->username = $input->username;
         $user->password = $input->password ?: '123456';

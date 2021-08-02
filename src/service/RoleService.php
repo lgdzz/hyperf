@@ -18,7 +18,7 @@ class RoleService
             return $query->where('status', $value);
         })->when($input->pid, function ($query, $value) {
             return $query->whereRaw("find_in_set({$value},path)");
-        })->when(Tools::SiteId(), function ($query, $value) {
+        })->when($input->site_id, function ($query, $value) {
             return $query->where('site_id', $value);
         })->orderByRaw('pid asc,id asc')->get()->toArray();
 

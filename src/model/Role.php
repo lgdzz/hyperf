@@ -72,7 +72,7 @@ class Role extends Model
         if (!$this->id) {
             $this->pid = $input->pid;
         }
-        $this->site_id = $input->site_id ?? Tools::SiteId();
+        $this->site_id = $input->site_id;
         $this->name = $input->name;
         $this->status = $input->status;
         $this->remark = $input->remark;
