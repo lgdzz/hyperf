@@ -218,4 +218,9 @@ class Tools
     {
         return ApplicationContext::getContainer();
     }
+
+    public static function SiteId(): int
+    {
+        return (int)Context::get('site_id', 0);
+    }
 }

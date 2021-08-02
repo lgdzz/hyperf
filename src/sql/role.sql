@@ -1,6 +1,7 @@
 CREATE TABLE `role` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `pid` int(11) unsigned NOT NULL DEFAULT '0',
+  `site_id` int(11) unsigned NOT NULL DEFAULT '0',
   `path` varchar(255) NOT NULL DEFAULT '',
   `name` varchar(30) NOT NULL DEFAULT '',
   `master` tinyint(1) unsigned NOT NULL DEFAULT '0',
@@ -10,5 +11,6 @@ CREATE TABLE `role` (
   `rules` varchar(2000) NOT NULL DEFAULT '',
   `created_at` char(19) NOT NULL DEFAULT '',
   `updated_at` char(19) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `site_id` (`site_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='角色';

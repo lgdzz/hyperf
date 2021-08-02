@@ -15,6 +15,7 @@ use lgdz\hyperf\Tools;
 
 /**
  * @property int $id
+ * @property int $site_id
  * @property string $type
  * @property string $phone
  * @property string $username
@@ -52,7 +53,7 @@ class User extends Model implements CacheableInterface
      *
      * @var array
      */
-    protected $casts = ['id' => 'integer', 'status' => 'integer', 'is_system' => 'integer', 'last_time' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
+    protected $casts = ['id' => 'integer', 'site_id' => 'integer', 'status' => 'integer', 'is_system' => 'integer', 'last_time' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
 
     public function creating(Creating $event)
     {

@@ -1,5 +1,6 @@
 CREATE TABLE `user` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `site_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '站点ID',
   `type` enum('master','branch') DEFAULT 'branch',
   `phone` char(11) NOT NULL DEFAULT '',
   `username` varchar(30) NOT NULL DEFAULT '',
@@ -16,5 +17,6 @@ CREATE TABLE `user` (
   `deleted_at` char(19) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `username` (`username`),
-  KEY `phone` (`phone`)
+  KEY `phone` (`phone`),
+  KEY `site_id` (`site_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='用户';

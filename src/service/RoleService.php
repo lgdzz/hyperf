@@ -18,6 +18,8 @@ class RoleService
             return $query->where('status', $value);
         })->when($input->pid, function ($query, $value) {
             return $query->whereRaw("find_in_set({$value},path)");
+        })->when($input->site_id, function ($query, $value) {
+            return $query->where('site_id', $value);
         })->orderByRaw('pid asc,id asc')->get()->toArray();
 
         return empty($list) ? [] : Factory::container()->tree->build($list, $list[0]['pid']);
@@ -73,7 +75,7 @@ class RoleService
 
     public function findById(int $id)
     {
-        return Role::query()->where('id', $id)->first();
+        return Role::query()->where('id', $id)->where('site_id', Tools::SiteId())->first();
     }
 
     /**
