@@ -5,6 +5,7 @@ declare (strict_types=1);
 namespace lgdz\hyperf\model;
 
 use Hyperf\DbConnection\Model\Model;
+use lgdz\hyperf\Tools;
 use lgdz\object\Body;
 
 /**
@@ -71,7 +72,7 @@ class Role extends Model
         if (!$this->id) {
             $this->pid = $input->pid;
         }
-        $this->site_id = $input->site_id ?? 0;
+        $this->site_id = $input->site_id ?? Tools::SiteId();
         $this->name = $input->name;
         $this->status = $input->status;
         $this->remark = $input->remark;
