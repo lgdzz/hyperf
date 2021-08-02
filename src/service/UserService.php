@@ -139,9 +139,13 @@ class UserService
 
     public function checkRoleSite(int $site_id, array $role_ids)
     {
+        $common_role_ids = array_column(
+            Role::query()->where('master', 0)->where('site_id', 0)->get(['id'])->toArray(),
+            'id'
+        );
         foreach ($role_ids as $role_id) {
             $role_site_id = Role::query()->where('id', $role_id)->value('site_id');
-            if ($role_site_id !== $site_id) {
+            if ($role_site_id !== $site_id && !in_array($role_id, $common_role_ids)) {
                 Tools::E('角色不存在');
             }
         }
