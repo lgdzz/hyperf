@@ -11,7 +11,7 @@ use lgdz\object\Body;
 /**
  * @property int $id
  * @property int $pid
- * @property int $site_id
+ * @property int $org_id
  * @property string $path
  * @property string $name
  * @property int $master
@@ -43,7 +43,7 @@ class Role extends Model
      *
      * @var array
      */
-    protected $casts = ['id' => 'integer', 'pid' => 'integer', 'site_id' => 'integer', 'master' => 'integer', 'status' => 'integer', 'is_system' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
+    protected $casts = ['id' => 'integer', 'pid' => 'integer', 'org_id' => 'integer', 'master' => 'integer', 'status' => 'integer', 'is_system' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
 
     public function parent()
     {
@@ -72,7 +72,7 @@ class Role extends Model
         if (!$this->id) {
             $this->pid = $input->pid;
         }
-        $this->site_id = $input->site_id;
+        $this->org_id = $input->org_id;
         $this->name = $input->name;
         $this->status = $input->status;
         $this->remark = $input->remark;

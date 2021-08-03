@@ -5,7 +5,9 @@ declare (strict_types=1);
 namespace lgdz\hyperf;
 
 use Closure;
+use lgdz\hyperf\model\Organization;
 use lgdz\hyperf\model\User;
+use lgdz\hyperf\service\OrganizationService;
 use lgdz\object\Body;
 use lgdz\object\Query;
 use Psr\Log\LoggerInterface;
@@ -219,8 +221,29 @@ class Tools
         return ApplicationContext::getContainer();
     }
 
-    public static function SiteId(): int
+    /**
+     * @param Organization|null $org
+     * @return Organization
+     */
+    public static function Org(Organization $org = null): Organization
     {
-        return (int)Context::get('site_id', 0);
+        if (is_null($org)) {
+            return Context::get('org');
+        } else {
+            Context::set('org', $org);
+            return $org;
+        }
+    }
+
+    /**
+     * 判断当前是否是目标组织的领导组织
+     * @param int $target_org_id
+     * @return bool
+     */
+    public static function IsTargetParentOrg(int $target_org_id): bool
+    {
+        $org_service = self::container()->get(OrganizationService::class);
+        $org = $org_service->org($org_service->findById($target_org_id));
+        return in_array(self::Org()->id, $org->pids);
     }
 }

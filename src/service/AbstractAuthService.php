@@ -8,7 +8,7 @@ use Closure;
 use Hyperf\Utils\ApplicationContext;
 use lgdz\exception\BusinessException;
 use lgdz\Factory;
-use lgdz\hyperf\model\{Role, Rule, User};
+use lgdz\hyperf\model\{Account, Role, Rule, User};
 use lgdz\hyperf\Tools;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Redis\Redis;
@@ -127,8 +127,6 @@ abstract class AbstractAuthService
         ];
         $result['token'] = $token;
         $result['expire_at'] = $expire_at;
-        $result['permissions'] = $router_config['permissions'];
-        $result['routes'] = $router_config['routes'];
         return $result;
     }
 
@@ -145,7 +143,7 @@ abstract class AbstractAuthService
     }
 
     // 获取客户端路由配置
-    abstract public function getRouterConfig(User $user): array;
+    abstract public function getRouterConfig(int $account_id): array;
 
     // 用户账户权限集KEY
     abstract public function powerKey(): string;
@@ -156,21 +154,10 @@ abstract class AbstractAuthService
      * @param User $user
      * @return array
      */
-    public function getRoleRules(User $user)
+    public function getRoleRules(Role $role)
     {
         // 系统超级账号
-        $master = false;
-        $rule_ids = [];
-        foreach ($user->roles as $role) {
-            if ($role->master) {
-                $master = true;
-                break;
-            } else {
-                // 合并多个角色权限
-                $rule_ids = array_merge($rule_ids, $role->rules);
-            }
-        }
-        if ($master) {
+        if ($role->master) {
             return Rule::query()->orderByRaw('sort asc,id asc')->get()->toArray();
         } else {
             $rule_ids = Rule::fullRulesIds($rule_ids);

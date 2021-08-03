@@ -15,6 +15,7 @@ use lgdz\hyperf\validator\AuthValidator;
 use lgdz\hyperf\annotation\Validator;
 use lgdz\hyperf\service\AuthService;
 use lgdz\hyperf\service\UserService;
+use lgdz\hyperf\service\AccountService;
 use lgdz\hyperf\Tools;
 
 /**
@@ -33,6 +34,12 @@ class AuthController
      * @var UserService
      */
     protected $UserService;
+
+    /**
+     * @Inject
+     * @var AccountService
+     */
+    protected $AccountService;
 
     /**
      * 用户名登录
@@ -71,5 +78,27 @@ class AuthController
     {
         $this->UserService->update(Tools::U()->id, Tools::Body(['op' => 'ChangePassword']));
         return Tools::ok();
+    }
+
+    /**
+     * 账户列表
+     * @RequestMapping(path="/l/accounts", methods="get")
+     * @Middleware(AuthUserMiddleware::class)
+     */
+    public function accounts()
+    {
+        $result = $this->AccountService->index(Tools::Query(['user_id' => Tools::U()->id]));
+        return Tools::ok($result);
+    }
+
+    /**
+     * 账户路由
+     * @RequestMapping(path="/l/router/{account_id}", methods="get")
+     * @Middleware(AuthUserMiddleware::class)
+     */
+    public function router(int $account_id)
+    {
+        $result = $this->AuthService->getRouterConfig();
+        return Tools::ok($result);
     }
 }

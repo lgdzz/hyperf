@@ -20,15 +20,11 @@ class UserService
     {
         $paginate = User::query()->with('role')->when($input->status, function ($query, $value) {
             return $query->where('status', $value);
-        })->when($input->site_id, function ($query, $value) {
-            return $query->where('site_id', $value);
         })->when($input->username, function ($query, $value) {
             return $query->where('username', 'like', '%' . $value . '%');
         })->when($input->phone, function ($query, $value) {
             return $query->where('phone', 'like', '%' . $value . '%');
-        })->when($input->role_id, function ($query, $value) {
-            return $query->where('role_id', $value);
-        })->where('id', '>', 1)->orderByDesc('id')->paginate($input->size);
+        })->where('type', 'branch')->orderByDesc('id')->paginate($input->size);
         return Tools::P(
             $paginate,
             function (User $user) {
@@ -39,29 +35,20 @@ class UserService
     }
 
     // 用户创建
-    public function create(Body $input)
+    public function create(Body $input, string $type = 'branch')
     {
         $site_id = $input->site_id ?? 0;
         User::query()->where('username', $input->username)->first() && Tools::E("账号[{$input->username}]已注册");
         User::query()->where('phone', $input->phone)->first() && Tools::E("手机号[{$input->phone}]已注册");
-        $this->checkRoleSite($site_id, $input->role_ids);
-        Db::transaction(function () use ($input, $site_id) {
-            $user = new User;
-            $user->site_id = $site_id;
-            $user->phone = $input->phone ?: '';
-            $user->username = $input->username;
-            $user->password = $input->password ?: '123456';
-            $user->status = $input->status ?: 1;
-            $user->is_system = $input->is_system ?: 0;
-            $user->remark = $input->remark ?: '';
-            $user->save();
-            foreach ($input->role_ids as $role_id) {
-                $user_role = new UserRole();
-                $user_role->user_id = $user->id;
-                $user_role->role_id = $role_id;
-                $user_role->save();
-            }
-        });
+        $user = new User;
+        $user->type = $type;
+        $user->phone = $input->phone ?: '';
+        $user->username = $input->username;
+        $user->password = $input->password ?: '123456';
+        $user->status = $input->status ?: 1;
+        $user->is_system = $input->is_system ?: 0;
+        $user->remark = $input->remark ?: '';
+        $user->save();
     }
 
     // 用户更新
@@ -85,23 +72,13 @@ class UserService
             default:
                 User::query()->where('username', $input->username)->where('id', '!=', $user->id)->first() && Tools::E("账号[{$input->username}]已注册");
                 User::query()->where('phone', $input->phone)->where('id', '!=', $user->id)->first() && Tools::E("手机号[{$input->phone}]已注册");
-                $this->checkRoleSite($user->site_id, $input->role_ids);
-                Db::transaction(function () use ($user) {
-                    $user->phone = $input->phone;
-                    $user->username = $input->username;
-                    $user->password = $input->password ?: '123456';
-                    $user->status = $input->status ?: 1;
-                    $user->is_system = $input->is_system ?: 0;
-                    $user->remark = $input->remark ?: '';
-                    $user->save();
-                    $user->roles()->delete();
-                    foreach ($input->role_ids as $role_id) {
-                        $user_role = new UserRole();
-                        $user_role->user_id = $user->id;
-                        $user_role->role_id = $role_id;
-                        $user_role->save();
-                    }
-                });
+                $user->phone = $input->phone;
+                $user->username = $input->username;
+                $user->password = $input->password ?: '123456';
+                $user->status = $input->status ?: 1;
+                $user->is_system = $input->is_system ?: 0;
+                $user->remark = $input->remark ?: '';
+                $user->save();
                 break;
         }
     }
@@ -114,7 +91,7 @@ class UserService
 
     public function findById(int $id)
     {
-        return User::query()->where('id', $id)->where('site_id', Tools::SiteId())->first();
+        return User::query()->where('id', $id)->first();
     }
 
     public function findByUsername(string $username)
@@ -135,19 +112,5 @@ class UserService
     public function user($user): User
     {
         return ($user instanceof User) ? $user : Tools::E('用户不存在');
-    }
-
-    public function checkRoleSite(int $site_id, array $role_ids)
-    {
-        $common_role_ids = array_column(
-            Role::query()->where('master', 0)->where('site_id', 0)->get(['id'])->toArray(),
-            'id'
-        );
-        foreach ($role_ids as $role_id) {
-            $role_site_id = Role::query()->where('id', $role_id)->value('site_id');
-            if ($role_site_id !== $site_id && !in_array($role_id, $common_role_ids)) {
-                Tools::E('角色不存在');
-            }
-        }
     }
 }

@@ -10,7 +10,6 @@ use Hyperf\Database\Model\SoftDeletes;
 use Hyperf\DbConnection\Model\Model;
 use Hyperf\ModelCache\Cacheable;
 use Hyperf\ModelCache\CacheableInterface;
-use lgdz\Factory;
 use lgdz\hyperf\Tools;
 
 /**
@@ -29,7 +28,7 @@ use lgdz\hyperf\Tools;
  * @property int $last_time
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
- * @property-read Role[] $roles
+ * @property-read Account[] $account
  */
 class User extends Model implements CacheableInterface
 {
@@ -57,7 +56,7 @@ class User extends Model implements CacheableInterface
 
     public function creating(Creating $event)
     {
-        $this->salt = Factory::container()->helper->randomString();
+        $this->salt = Tools::F()->helper->randomString();
         $this->password = $this->encodePassword($this->password);
     }
 
@@ -68,27 +67,16 @@ class User extends Model implements CacheableInterface
         }
     }
 
-    // 关联用户角色
-    public function roles()
+    // 关联账户
+    public function account()
     {
-        return $this->belongsToMany(Role::class, 'user_role');
-    }
-
-    public function initRootUser(): void
-    {
-        $this->type = 'master';
-        $this->username = 'root';
-        $this->password = '123456';
-        $this->remark = '系统管理员账号';
-        $this->phone = '';
-        $this->save();
-        UserRole::insert(['user_id' => 1, 'role_id' => 1]);
+        return $this->hasMany(Account::class, 'user_id', 'id');
     }
 
     // 验证密码
     public function checkPassword(string $password): bool
     {
-        return Factory::container()->password->check($password, $this->salt, $this->password);
+        return Tools::F()->password->check($password, $this->salt, $this->password);
     }
 
     // 密码加密
@@ -97,7 +85,7 @@ class User extends Model implements CacheableInterface
         if (!$this->salt) {
             Tools::E('salt未创建');
         }
-        return Factory::container()->password->build($password, $this->salt);
+        return Tools::F()->password->build($password, $this->salt);
     }
 
     // 隐藏密码
