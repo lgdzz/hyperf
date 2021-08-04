@@ -5,6 +5,7 @@ declare (strict_types=1);
 namespace lgdz\hyperf;
 
 use Closure;
+use lgdz\hyperf\model\Account;
 use lgdz\hyperf\model\Organization;
 use lgdz\hyperf\model\User;
 use lgdz\hyperf\service\OrganizationService;
@@ -219,6 +220,20 @@ class Tools
     public static function container()
     {
         return ApplicationContext::getContainer();
+    }
+
+    /**
+     * @param Account|null $account
+     * @return Account
+     */
+    public static function Account(Account $account = null): Account
+    {
+        if (is_null($account)) {
+            return Context::get('account');
+        } else {
+            Context::set('account', $account);
+            return $account;
+        }
     }
 
     /**

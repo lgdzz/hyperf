@@ -8,13 +8,18 @@ use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\RequestMapping;
 use Hyperf\HttpServer\Annotation\Middleware;
+use Hyperf\HttpServer\Annotation\Middlewares;
 use lgdz\hyperf\middleware\AuthUserMiddleware;
+use lgdz\hyperf\middleware\AccountMiddleware;
 use lgdz\hyperf\service\ComponentsService;
 use lgdz\hyperf\Tools;
 
 /**
  * @Controller()
- * @Middleware(AuthUserMiddleware::class)
+ * @Middlewares(
+ *     @Middleware(AuthUserMiddleware::class),
+ *     @Middleware(AccountMiddleware::class)
+ * )
  */
 class ComponentsController
 {

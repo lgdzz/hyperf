@@ -86,7 +86,7 @@ class AccountService
 
     public function findById(int $id)
     {
-        return Account::query()->where('id', $id)->first();
+        return Account::query(true)->where('id', $id)->first();
     }
 
     /**

@@ -6,7 +6,7 @@ namespace lgdz\hyperf\service;
 
 use lgdz\object\Body;
 use lgdz\object\Query;
-use lgdz\hyperf\model\{Role, Rule};
+use lgdz\hyperf\model\{OrganizationGrade, Role, Rule};
 use lgdz\hyperf\Tools;
 
 class RoleService
@@ -92,5 +92,24 @@ class RoleService
     public function role($role): Role
     {
         return ($role instanceof Role) ? $role : Tools::E('角色不存在');
+    }
+
+    public function select(int $org_id = 0)
+    {
+        $fields = ['id', 'pid', 'org_id', 'path', 'name'];
+        if (!$org_id || $org_id === Tools::Org()->id) {
+            $org_id = Tools::Org()->id;
+            // 以自身角色为根返回下级角色
+            $role_id = Tools::Account()->role_id;
+            $list = Role::query()->whereRaw("find_in_set({$role_id},path)")->orderBy('id')->get($fields)->toArray();
+        } else {
+            !Tools::IsTargetParentOrg($org_id) && Tools::E('超出您自身管理组织范围');
+            $org_service = Tools::container()->get(OrganizationService::class);
+            $org = $org_service->org($org_service->findById($org_id));
+            $admin_role_id = (int)OrganizationGrade::query()->where('id', $org->grade_id)->value('admin_role_id');
+            // 以组织为根返回下级角色
+            $list = Role::query()->where('id', $admin_role_id)->orWhere('org_id', $org_id)->orderBy('id')->get($fields)->toArray();
+        }
+        return empty($list) ? [] : Tools::F()->tree->build($list, $list[0]['pid']);
     }
 }

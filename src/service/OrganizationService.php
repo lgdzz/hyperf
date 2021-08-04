@@ -83,7 +83,7 @@ class OrganizationService
 
     public function findById(int $id)
     {
-        return Organization::query()->where('id', $id)->first();
+        return Organization::query(true)->where('id', $id)->first();
     }
 
     /**

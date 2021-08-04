@@ -68,4 +68,10 @@ class ComponentsService
     {
         return Tools::container()->get(OrganizationService::class)->select($org_id, $self);
     }
+
+    // 角色列表
+    public function RoleTree(int $org_id = 0)
+    {
+        return Tools::container()->get(RoleService::class)->select($org_id);
+    }
 }

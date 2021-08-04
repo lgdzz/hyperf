@@ -11,7 +11,7 @@ use Hyperf\HttpServer\Annotation\Middlewares;
 use Hyperf\HttpServer\Annotation\Middleware;
 use lgdz\hyperf\middleware\AuthUserMiddleware;
 use lgdz\hyperf\middleware\AuthUserPowerMiddleware;
-use lgdz\hyperf\middleware\OrgMiddleware;
+use lgdz\hyperf\middleware\AccountMiddleware;
 use lgdz\hyperf\middleware\ValidatorMiddleware;
 use lgdz\hyperf\validator\RoleValidator;
 use lgdz\hyperf\annotation\Validator;
@@ -23,7 +23,7 @@ use lgdz\hyperf\Tools;
  * @Middlewares({
  *     @Middleware(AuthUserMiddleware::class),
  *     @Middleware(AuthUserPowerMiddleware::class),
- *     @Middleware(OrgMiddleware::class)
+ *     @Middleware(AccountMiddleware::class)
  * })
  */
 class RoleController
