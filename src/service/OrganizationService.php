@@ -69,7 +69,7 @@ class OrganizationService
     public function delete(int $id)
     {
         $this->checkPermissionDomain($this->org($this->findById($id)), function (Organization $org) {
-            $org->delete();
+            return $org->delete();
         });
     }
 
@@ -94,5 +94,24 @@ class OrganizationService
     public function org($org): Organization
     {
         return ($org instanceof Organization) ? $org : Tools::E('组织不存在');
+    }
+
+    public function select(int $org_id = 0, bool $self = true)
+    {
+        if ($org_id) {
+            $model = Organization::query()->whereRaw("find_in_set({$org_id},path)");
+        } else {
+            $model = Organization::query();
+        }
+        $list = $model->orderByRaw('len asc,sort asc,id asc')->get()->toArray();
+        if (empty($list)) {
+            return [];
+        } else {
+            $tree = Tools::F()->tree->build($list, $list[0]['pid']);
+            if (!$self) {
+                $tree = $tree[0]['children'] ?? [];
+            }
+            return $tree;
+        }
     }
 }

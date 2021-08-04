@@ -29,6 +29,7 @@ use lgdz\hyperf\Tools;
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property-read Account[] $account
+ * @property-read int $account_count
  */
 class User extends Model implements CacheableInterface
 {
@@ -93,5 +94,11 @@ class User extends Model implements CacheableInterface
     {
         $this->addHidden('password', 'salt');
         return $this;
+    }
+
+    // 关联账户数量
+    public function getAccountCountAttribute()
+    {
+        return $this->account()->count();
     }
 }

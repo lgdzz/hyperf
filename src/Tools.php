@@ -236,7 +236,7 @@ class Tools
     }
 
     /**
-     * 判断当前是否是目标组织的领导组织
+     * 判断当前是否是目标组织的领导组织(包含本组织)
      * @param int $target_org_id
      * @return bool
      */
@@ -244,6 +244,6 @@ class Tools
     {
         $org_service = self::container()->get(OrganizationService::class);
         $org = $org_service->org($org_service->findById($target_org_id));
-        return in_array(self::Org()->id, $org->pids);
+        return self::Org()->id === $target_org_id || in_array(self::Org()->id, $org->pids);
     }
 }

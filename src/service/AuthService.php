@@ -18,9 +18,7 @@ class AuthService extends AbstractAuthService
     // 获取账户路由权限
     public function getRouterConfig(int $account_id): array
     {
-        $role_id = Account::query()->where('account_id', $account_id)->value('role_id');
-        $role_service = Tools::container()->get(RoleService::class);
-        $role = $role_service->role($role_service->findById($role_id));
+        $role = $this->getRoleByAccountId($account_id);
         $rules = $this->getRoleRules($role);
         $api_list = [];
         $page_list = [];
@@ -33,7 +31,7 @@ class AuthService extends AbstractAuthService
             'routes'      => $this->clientRouters($page_list, 0)
         ];
 
-        $this->setPowers($api_list, $user_id);
+        $this->setPowers($api_list, $account_id);
 
         return $result;
     }

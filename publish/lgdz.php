@@ -25,5 +25,6 @@ return [
             'corp_id'  => '', // 企业ID
             'secret'   => ''
         ]
-    ]
+    ],
+    'component_api' => null
 ];

@@ -18,7 +18,7 @@ class UserService
     // 用户列表
     public function index(Query $input)
     {
-        $paginate = User::query()->with('role')->when($input->status, function ($query, $value) {
+        $paginate = User::query()->when($input->status, function ($query, $value) {
             return $query->where('status', $value);
         })->when($input->username, function ($query, $value) {
             return $query->where('username', 'like', '%' . $value . '%');
@@ -28,6 +28,7 @@ class UserService
         return Tools::P(
             $paginate,
             function (User $user) {
+                $user->append('account_count');
                 $user->hiddenPassword();
                 return $user;
             }
@@ -72,11 +73,7 @@ class UserService
             default:
                 User::query()->where('username', $input->username)->where('id', '!=', $user->id)->first() && Tools::E("账号[{$input->username}]已注册");
                 User::query()->where('phone', $input->phone)->where('id', '!=', $user->id)->first() && Tools::E("手机号[{$input->phone}]已注册");
-                $user->phone = $input->phone;
-                $user->username = $input->username;
-                $user->password = $input->password ?: '123456';
                 $user->status = $input->status ?: 1;
-                $user->is_system = $input->is_system ?: 0;
                 $user->remark = $input->remark ?: '';
                 $user->save();
                 break;

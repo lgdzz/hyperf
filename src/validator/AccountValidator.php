@@ -22,8 +22,6 @@ class AccountValidator implements ValidatorInterface
             case 'create':
                 if (!isset($data['username']) || !$data['username']) {
                     Tools::E('username未定义');
-                } elseif (!isset($data['org_id']) || !$data['org_id']) {
-                    Tools::E('org_id未定义');
                 } elseif (!isset($data['role_id']) || !$data['role_id']) {
                     Tools::E('role_id未定义');
                 }

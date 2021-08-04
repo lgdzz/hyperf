@@ -48,7 +48,6 @@ class AuthUserMiddleware implements MiddlewareInterface
 
     public function setUser(int $user_id)
     {
-//        Tools::U(User::query()->where('id', $user_id)->first());
         Tools::U(User::findFromCache($user_id));
     }
 }

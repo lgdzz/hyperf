@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace lgdz\hyperf\service;
 
-use lgdz\Factory;
 use lgdz\object\Body;
 use lgdz\object\Query;
 use lgdz\hyperf\model\{Role, Rule};
@@ -18,15 +17,20 @@ class RoleService
             return $query->where('status', $value);
         })->when($input->pid, function ($query, $value) {
             return $query->whereRaw("find_in_set({$value},path)");
-        })->when($input->site_id, function ($query, $value) {
-            return $query->where('site_id', $value);
+        })->when($input->org_id, function ($query, $value) {
+            return $query->where('org_id', $value);
         })->orderByRaw('pid asc,id asc')->get()->toArray();
 
-        return empty($list) ? [] : Factory::container()->tree->build($list, $list[0]['pid']);
+        return empty($list) ? [] : Tools::F()->tree->build($list, $list[0]['pid']);
     }
 
     public function create(Body $input)
     {
+        if ($input->org_id && !Tools::IsTargetParentOrg($input->org_id)) {
+            Tools::E('超出可管理组织范围');
+        } else {
+            $input->org_id = Tools::Org()->id;
+        }
         // 比对编辑者权限，如果超出则创建失败
         $this->compareEditorRules($input->pid, $input->rules);
         $role = new Role();
@@ -41,6 +45,8 @@ class RoleService
     public function update(int $id, Body $input)
     {
         $role = $this->role($this->findById($id));
+        // 比对编辑者权限，如果超出则创建失败
+        $this->compareEditorRules($role->pid, $input->rules);
         $role->setFormData($input, true);
         $role->save();
     }
@@ -75,7 +81,7 @@ class RoleService
 
     public function findById(int $id)
     {
-        return Role::query()->where('id', $id)->where('site_id', Tools::SiteId())->first();
+        return Role::query()->where('id', $id)->first();
     }
 
     /**

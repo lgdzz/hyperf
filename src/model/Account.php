@@ -49,18 +49,21 @@ class Account extends Model implements CacheableInterface
     // 关联用户
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class, 'user_id', 'id')
+            ->select('id', 'username', 'phone', 'remark');
     }
 
     // 关联组织
     public function org()
     {
-        return $this->belongsTo(Organization::class, 'org_id', 'id');
+        return $this->belongsTo(Organization::class, 'org_id', 'id')
+            ->select('id', 'path_name', 'name', 'name_en', 'grade_id', 'description');
     }
 
     // 关联角色
     public function role()
     {
-        return $this->belongsTo(Role::class, 'role_id', 'id');
+        return $this->belongsTo(Role::class, 'role_id', 'id')
+            ->select('id', 'name');
     }
 }

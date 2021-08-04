@@ -107,8 +107,7 @@ class Organization extends Model implements CacheableInterface
 
     public function setFormData(Body $input)
     {
-        $pids = $input->pids ?? [];
-        $pid = $pids[count($pids) - 1] ?? 0;
+        $pid = $input->pid ?? 1;
         if ($pid > 0) {
             $org = Organization::query()->where('id', $pid)->first();
             if (!$org instanceof Organization) {
@@ -119,6 +118,7 @@ class Organization extends Model implements CacheableInterface
             array_push($pids, $org->id);
         } else {
             $len = 1;
+            $pids = [];
         }
         $this->pid = $pid;
         $this->pids = $pids;

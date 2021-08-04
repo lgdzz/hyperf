@@ -19,6 +19,7 @@ use lgdz\object\Body;
  * @property string $service_router
  * @property string $client_router
  * @property string $client_route_name
+ * @property string $client_route_alias
  * @property string $icon
  * @property int $sort
  * @property-read Rule[] $children
@@ -61,6 +62,8 @@ class Rule extends Model
         $this->operation = $input->operation;
         $this->service_router = $input->service_router;
         $this->client_router = $input->client_router;
+        $this->client_route_name = $input->client_route_name;
+        $this->client_route_alias = $input->client_route_alias;
     }
 
     public static function fullRulesIds($rule_ids)

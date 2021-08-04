@@ -116,18 +116,16 @@ abstract class AbstractAuthService
     {
         // 生成token
         [$token, $expire_at] = $this->issueAuthorization($user->id);
-        // 生成路由菜单
-        $router_config = $this->getRouterConfig($user);
-        $result = [];
-        $result['user'] = [
-            'user_id'  => $user->id,
-            'username' => $user->username,
-            'phone'    => $user->phone,
-            'type'     => $user->type
+        return [
+            'user'      => [
+                'user_id'  => $user->id,
+                'username' => $user->username,
+                'phone'    => $user->phone,
+                'type'     => $user->type
+            ],
+            'token'     => $token,
+            'expire_at' => $expire_at
         ];
-        $result['token'] = $token;
-        $result['expire_at'] = $expire_at;
-        return $result;
     }
 
     // 退出登录
@@ -138,8 +136,8 @@ abstract class AbstractAuthService
 
     protected function powerHashKey(...$args)
     {
-        [$user_id] = $args;
-        return (string)$user_id;
+        [$id] = $args;
+        return (string)$id;
     }
 
     // 获取客户端路由配置
@@ -148,6 +146,15 @@ abstract class AbstractAuthService
     // 用户账户权限集KEY
     abstract public function powerKey(): string;
 
+    public function getRoleByAccountId(int $account_id): Role
+    {
+        $role_id = (int)Account::query()->where('id', $account_id)->value('role_id');
+        if (!$role_id) {
+            Tools::E('Account不存在');
+        }
+        $role_service = Tools::container()->get(RoleService::class);
+        return $role_service->role($role_service->findById($role_id));
+    }
 
     /**
      * 获取角色完整权限规则列表
@@ -160,27 +167,27 @@ abstract class AbstractAuthService
         if ($role->master) {
             return Rule::query()->orderByRaw('sort asc,id asc')->get()->toArray();
         } else {
-            $rule_ids = Rule::fullRulesIds($rule_ids);
+            $rule_ids = Rule::fullRulesIds($role->rules);
             return Rule::query()->orderByRaw('sort asc,id asc')->find($rule_ids)->toArray();
         }
     }
 
-    public function getPowers(int $user_id)
+    public function getPowers(int $account_id)
     {
-        $values = $this->redis->hGet($this->powerKey(), $this->powerHashKey($user_id));
+        $values = $this->redis->hGet($this->powerKey(), $this->powerHashKey($account_id));
         return $values === false ? [] : unserialize($values);
     }
 
     // 写入powers到redis
-    public function setPowers(array $api_list, int $user_id)
+    public function setPowers(array $api_list, int $account_id)
     {
         $powers = array_map(function ($item) {
             return $item['method'] . ':' . $item['service_router'];
         }, $api_list);
 
-        $this->redis->hSet($this->powerKey(), $this->powerHashKey($user_id), serialize([
-            'user_id' => $user_id,
-            'powers'  => $powers
+        $this->redis->hSet($this->powerKey(), $this->powerHashKey($account_id), serialize([
+            'account_id' => $account_id,
+            'powers'     => $powers
         ]));
     }
 }

@@ -11,6 +11,7 @@ use Hyperf\HttpServer\Annotation\Middleware;
 use Hyperf\HttpServer\Annotation\Middlewares;
 use lgdz\hyperf\middleware\AuthUserMiddleware;
 use lgdz\hyperf\middleware\ValidatorMiddleware;
+use lgdz\hyperf\service\AuthService2;
 use lgdz\hyperf\validator\AuthValidator;
 use lgdz\hyperf\annotation\Validator;
 use lgdz\hyperf\service\AuthService;
@@ -87,18 +88,29 @@ class AuthController
      */
     public function accounts()
     {
-        $result = $this->AccountService->index(Tools::Query(['user_id' => Tools::U()->id]));
+        $result = $this->AccountService->index(Tools::Query(['user_id' => Tools::U()->id]), ['role', 'org']);
         return Tools::ok($result);
     }
 
     /**
-     * 账户路由
+     * 账户路由(ant-design)
      * @RequestMapping(path="/l/router/{account_id}", methods="get")
      * @Middleware(AuthUserMiddleware::class)
      */
     public function router(int $account_id)
     {
-        $result = $this->AuthService->getRouterConfig();
+        $result = $this->AuthService->getRouterConfig($account_id);
+        return Tools::ok($result);
+    }
+
+    /**
+     * 账户路由2(element-ui)
+     * @RequestMapping(path="/l/router2/{account_id}", methods="get")
+     * @Middleware(AuthUserMiddleware::class)
+     */
+    public function router2(int $account_id)
+    {
+        $result = Tools::container()->get(AuthService2::class)->getRouterConfig($account_id);
         return Tools::ok($result);
     }
 }

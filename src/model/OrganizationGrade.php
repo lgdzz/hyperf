@@ -10,6 +10,7 @@ use Hyperf\DbConnection\Model\Model;
  * @property int $id
  * @property int $pid
  * @property string $path
+ * @property int $len
  * @property string $name
  * @property string $name_en
  * @property string $description

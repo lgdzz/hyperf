@@ -49,21 +49,23 @@ class ComponentsService
     }
 
     // 权限列表
-    public function RuleAll(int $role_id)
+    public function RoleRuleTree(int $role_id)
     {
         $rule_list = $this->AuthService->getRoleRules(
-            $this->RoleService->read($role_id)
+            $this->RoleService->role($this->RoleService->findById($role_id))
         );
-        return empty($rule_list) ? [] : Tools::$factory->Tree()->tree($rule_list, $rule_list[0]['pid']);
+        return empty($rule_list) ? [] : Tools::F()->tree->build($rule_list, $rule_list[0]['pid']);
     }
 
-    // 角色列表
-    public function RoleSelect(bool $self)
+    // 组织类型
+    public function OrgGradeTree(int $grade_id = 0, bool $self = false)
     {
-        $role_id = $self ? Tools::U()->parent_role_id : Tools::U()->role_id;
-        $list = $this->RoleService->index([
-            'pid' => $role_id
-        ])->toArray();
-        return Tools::$factory->Tree()->tree($list, $role_id);
+        return Tools::container()->get(OrganizationGradeService::class)->select($grade_id, $self);
+    }
+
+    // 组织列表
+    public function OrgTree(int $org_id = 0, bool $self = true)
+    {
+        return Tools::container()->get(OrganizationService::class)->select($org_id, $self);
     }
 }

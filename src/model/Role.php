@@ -74,8 +74,8 @@ class Role extends Model
         }
         $this->org_id = $input->org_id;
         $this->name = $input->name;
-        $this->status = $input->status;
-        $this->remark = $input->remark;
+        $this->status = $input->status ?? 1;
+        $this->remark = $input->remark ?? '';
         $this->rules = $input->rules;
     }
 }

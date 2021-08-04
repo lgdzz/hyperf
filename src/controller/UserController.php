@@ -38,7 +38,7 @@ class UserController
      */
     public function index()
     {
-        $result = $this->UserService->index(Tools::Query(['site_id' => Tools::SiteId()]));
+        $result = $this->UserService->index(Tools::Query());
         return Tools::Ok($result);
     }
 

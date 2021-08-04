@@ -14,9 +14,14 @@ use lgdz\hyperf\Tools;
 
 class AccountService
 {
-    public function index(Query $input, \Closure $callback = null)
+    public function index(Query $input, array $with = [], \Closure $callback = null)
     {
-        $paginate = Account::query()->when($input->status, function ($query, $value) {
+        if (!empty($with)) {
+            $model = Account::query()->with(...$with);
+        } else {
+            $model = Account::query();
+        }
+        $paginate = $model->when($input->status, function ($query, $value) {
             return $query->where('status', $value);
         })->when($input->org_id, function ($query, $value) {
             if (!Tools::IsTargetParentOrg($value)) {
@@ -33,6 +38,9 @@ class AccountService
 
     public function create(Body $input)
     {
+        if (!$input->org_id) {
+            $input->org_id = Tools::Org()->id;
+        }
         $this->validationOrgIdAndRoleId($input->org_id, $input->role_id);
         $user_service = Tools::container()->get(UserService::class);
         $user = $user_service->findByUsername($input->username);
