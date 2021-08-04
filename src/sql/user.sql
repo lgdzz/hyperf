@@ -1,12 +1,10 @@
 CREATE TABLE `user` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `site_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '站点ID',
   `type` enum('master','branch') DEFAULT 'branch',
   `phone` char(11) NOT NULL DEFAULT '',
   `username` varchar(30) NOT NULL DEFAULT '',
   `password` char(32) NOT NULL DEFAULT '',
   `salt` char(5) NOT NULL DEFAULT '',
-  `job_number` varchar(30) DEFAULT NULL COMMENT '工号',
   `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '1-启用|2-禁用',
   `is_system` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `remark` varchar(255) DEFAULT NULL,
@@ -18,5 +16,5 @@ CREATE TABLE `user` (
   PRIMARY KEY (`id`),
   KEY `username` (`username`),
   KEY `phone` (`phone`),
-  KEY `site_id` (`site_id`)
+  KEY `type` (`type`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='用户';
