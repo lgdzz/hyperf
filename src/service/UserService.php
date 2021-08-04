@@ -38,7 +38,6 @@ class UserService
     // 用户创建
     public function create(Body $input, string $type = 'branch')
     {
-        $site_id = $input->site_id ?? 0;
         User::query()->where('username', $input->username)->first() && Tools::E("账号[{$input->username}]已注册");
         User::query()->where('phone', $input->phone)->first() && Tools::E("手机号[{$input->phone}]已注册");
         $user = new User;

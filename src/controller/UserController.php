@@ -58,7 +58,7 @@ class UserController
      */
     public function create()
     {
-        $this->UserService->create(Tools::Body(['site_id' => Tools::SiteId()]));
+        $this->UserService->create(Tools::Body());
         return Tools::Ok();
     }
 
