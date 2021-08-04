@@ -29,7 +29,7 @@ class AuthUserPowerMiddleware implements MiddlewareInterface
         if (config('lgdz.power.enable')) {
             // 权限是通过请求方式+路由进行匹配验证
             $power = sprintf('%s:%s', $request->getMethod(), $router);
-            $powers = $this->AuthService->getPowers(Tools::U()->id);
+            $powers = $this->AuthService->getPowers(Tools::Account()->id);
             if (empty($powers)) {
                 throw new JwtAuthException('权限失效，请重新登录');
             } elseif (!in_array($power, $powers['powers'])) {

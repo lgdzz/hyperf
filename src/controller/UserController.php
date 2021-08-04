@@ -12,6 +12,7 @@ use Hyperf\HttpServer\Annotation\Middleware;
 use lgdz\Factory;
 use lgdz\hyperf\middleware\AuthUserMiddleware;
 use lgdz\hyperf\middleware\AuthUserPowerMiddleware;
+use lgdz\hyperf\middleware\AccountMiddleware;
 use lgdz\hyperf\middleware\ValidatorMiddleware;
 use lgdz\hyperf\service\UserService;
 use lgdz\hyperf\Tools;
@@ -22,6 +23,7 @@ use lgdz\hyperf\validator\UserValidator;
  * @Controller()
  * @Middlewares({
  *     @Middleware(AuthUserMiddleware::class),
+ *     @Middleware(AccountMiddleware::class),
  *     @Middleware(AuthUserPowerMiddleware::class)
  * })
  */

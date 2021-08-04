@@ -22,8 +22,8 @@ use lgdz\hyperf\Tools;
  * @Controller()
  * @Middlewares({
  *     @Middleware(AuthUserMiddleware::class),
- *     @Middleware(AuthUserPowerMiddleware::class),
- *     @Middleware(AccountMiddleware::class)
+ *     @Middleware(AccountMiddleware::class),
+ *     @Middleware(AuthUserPowerMiddleware::class)
  * })
  */
 class RoleController
