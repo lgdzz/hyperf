@@ -43,7 +43,7 @@ class OrganizationController
      */
     public function index()
     {
-        $result = $this->OrgService->index(Tools::Query());
+        $result = $this->OrgService->index(Tools::Query(['pid' => Tools::Org()->id]));
         return Tools::ok($result);
     }
 

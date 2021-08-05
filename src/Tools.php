@@ -31,23 +31,27 @@ class Tools
     // 字典缓存容器
     protected static $dictionary = ['id_index_list' => [], 'name_index_tree' => []];
 
+    // 更新字典缓存
     public static function D2Cache(array $id_index_list, array $name_index_tree)
     {
         static::$dictionary['id_index_list'] = $id_index_list;
         static::$dictionary['name_index_tree'] = $name_index_tree;
     }
 
+    // 获取字典中文名称
     public static function D2Label(int $id)
     {
         return static::$dictionary['id_index_list'][$id] ?? '-';
     }
 
+    // 获取字典树结构数据
     public static function D2Tree(string $name)
     {
         return static::$dictionary['name_index_tree'][$name] ?? [];
     }
 
     /**
+     * 用户信息
      * @param User|null $user
      * @return User
      */
