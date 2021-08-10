@@ -24,7 +24,7 @@ class AccountService
         $paginate = $model->when($input->status, function ($query, $value) {
             return $query->where('status', $value);
         })->when($input->org_id, function ($query, $value) {
-            if (!Tools::IsTargetParentOrg($value)) {
+            if (!Tools::IsTargetParentOrg((int)$value)) {
                 $value = 0;
             }
             return $query->where('org_id', $value);
