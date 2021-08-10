@@ -7,6 +7,7 @@ namespace lgdz\hyperf;
 use Closure;
 use lgdz\hyperf\model\Account;
 use lgdz\hyperf\model\Organization;
+use lgdz\hyperf\model\OrganizationGrade;
 use lgdz\hyperf\model\User;
 use lgdz\hyperf\service\OrganizationService;
 use lgdz\object\Body;
@@ -264,5 +265,17 @@ class Tools
         $org_service = self::container()->get(OrganizationService::class);
         $org = $org_service->org($org_service->findById($target_org_id));
         return self::Org()->id === $target_org_id || in_array(self::Org()->id, $org->pids);
+    }
+
+    /**
+     * 获取组织默认管理员角色ID
+     * @param int $org_id
+     * @return int
+     */
+    public static function DefaultOrgAdminRoleId(int $org_id): int
+    {
+        $org_service = Tools::container()->get(OrganizationService::class);
+        $org = $org_service->org($org_service->findById($org_id));
+        return (int)OrganizationGrade::query()->where('id', $org->grade_id)->value('admin_role_id');
     }
 }

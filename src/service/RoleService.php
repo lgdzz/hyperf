@@ -34,7 +34,7 @@ class RoleService
         if ($input->org_id && !Tools::IsTargetParentOrg($input->org_id)) {
             Tools::E('超出可管理组织范围');
         } else {
-            $input->org_id = Tools::Org()->id;
+            $input->org_id = $input->org_id ?: Tools::Org()->id;
         }
         // 比对编辑者权限，如果超出则创建失败
         $this->compareEditorRules($input->pid, $input->rules);

@@ -79,7 +79,7 @@ class AccountService
         !Tools::IsTargetParentOrg($org_id) && Tools::E('您没有对该组织操作权限');
         $role_service = Tools::container()->get(RoleService::class);
         $role = $role_service->role($role_service->findById($role_id));
-        if ($role->org_id !== $org_id) {
+        if ($role->org_id !== $org_id && Tools::DefaultOrgAdminRoleId($org_id) !== $role->id) {
             Tools::E('该角色不属于该组织');
         }
     }
