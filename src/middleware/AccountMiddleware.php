@@ -29,9 +29,9 @@ class AccountMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $account_id = $request->getHeaderLine('account_id');
+        $account_id = $request->getHeaderLine('accountid');
         if (empty($account_id)) {
-            Tools::E('account_id未定义');
+            Tools::E('accountid未定义');
         }
 
         // 身份信息保存到上下文
