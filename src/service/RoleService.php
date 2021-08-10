@@ -54,6 +54,7 @@ class RoleService
     public function delete(int $id)
     {
         $role = $this->role($this->findById($id));
+        $role->is_system && Tools::E('系统默认角色禁止删除');
         count($role->children) > 0 && Tools::E('请先删除子角色');
         try {
             $role->delete();
