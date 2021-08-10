@@ -13,12 +13,17 @@ class RoleService
 {
     public function index(Query $input)
     {
+        $input->org_id = $input->org_id ?: Tools::Org()->id;
         $list = Role::query()->when($input->status, function ($query, $value) {
             return $query->where('status', $value);
         })->when($input->pid, function ($query, $value) {
             return $query->whereRaw("find_in_set({$value},path)");
         })->when($input->org_id, function ($query, $value) {
-            return $query->where('org_id', $value);
+            $org_id = (int)$value;
+            $org_service = Tools::container()->get(OrganizationService::class);
+            $org = $org_service->org($org_service->findById($org_id));
+            $admin_role_id = (int)OrganizationGrade::query()->where('id', $org->grade_id)->value('admin_role_id');
+            return $query->where('org_id', $org_id)->orWhere('id', $admin_role_id);
         })->orderByRaw('pid asc,id asc')->get()->toArray();
 
         return empty($list) ? [] : Tools::F()->tree->build($list, $list[0]['pid']);
@@ -55,6 +60,7 @@ class RoleService
     {
         $role = $this->role($this->findById($id));
         $role->is_system && Tools::E('系统默认角色禁止删除');
+        !Tools::IsTargetParentOrg($role->org_id) && Tools::E('超出可管理组织范围');
         count($role->children) > 0 && Tools::E('请先删除子角色');
         try {
             $role->delete();
@@ -98,6 +104,7 @@ class RoleService
     public function select(int $org_id = 0)
     {
         $fields = ['id', 'pid', 'org_id', 'path', 'name'];
+        // 本组织
         if (!$org_id || $org_id === Tools::Org()->id) {
             $org_id = Tools::Org()->id;
             // 以自身角色为根返回下级角色
