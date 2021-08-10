@@ -34,6 +34,9 @@ class User extends Model implements CacheableInterface
     use SoftDeletes;
     use Cacheable;
 
+    // 账号锁定
+    const LOCK = 2;
+
     /**
      * The table associated with the model.
      *

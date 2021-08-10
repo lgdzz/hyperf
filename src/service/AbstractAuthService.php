@@ -104,7 +104,7 @@ abstract class AbstractAuthService
             Tools::E('账号或密码不正确');
         } elseif (!$user->checkPassword($password)) {
             Tools::E('账号或密码不正确');
-        } elseif ($user->is_disable) {
+        } elseif ($user->status === User::LOCK) {
             Tools::E('账号已停用');
         } else {
             return $this->$res($user);
