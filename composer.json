@@ -40,5 +40,10 @@
     "hyperf": {
       "config": "lgdz\\hyperf\\ConfigProvider"
     }
+  },
+  "config": {
+    "allow-plugins": {
+      "easywechat-composer/easywechat-composer": true
+    }
   }
 }

@@ -31,6 +31,8 @@ use lgdz\hyperf\exception\BusinessException;
  */
 class Tools
 {
+    protected static $encrypt = null;
+
     // 字典缓存容器
 //    protected static $dictionary = ['id_index_list' => [], 'name_index_tree' => []];
 
@@ -175,6 +177,14 @@ class Tools
         throw new BusinessException($msg);
     }
 
+    public static function Encrypt($value, \Closure $handle)
+    {
+        if (is_null(static::$encrypt)) {
+            static::$encrypt = config('lgdz.encrypt');
+        }
+        return static::$encrypt['enable'] ? $handle($value, static::$encrypt['offset'], static::$encrypt['length']) : $value;
+    }
+
     /**
      * 接口正常返回
      * @param null $data
@@ -182,6 +192,9 @@ class Tools
      */
     public static function Ok($data = null)
     {
+        $data = static::Encrypt($data, function ($value, $offset, $length) {
+            return Tools::F()->encrypt->encode(json_encode($value), $offset, $length);
+        });
         return static::O()->json(
             static::R()->ok($data)
         );
@@ -400,7 +413,7 @@ class Tools
     public static function BuildOrder(Query $query, string $default = 'id')
     {
         $order_methods = [
-            'ascend'  => 'asc',
+            'ascend' => 'asc',
             'descend' => 'desc'
         ];
         if ($query->sortField && $query->sortOrder) {

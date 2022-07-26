@@ -3,56 +3,61 @@
 declare(strict_types=1);
 
 return [
+    'encrypt' => [
+        'enable' => true,
+        'offset' => 0,
+        'length' => 6
+    ],
     // 后台登录
-    'auth'              => [
+    'auth' => [
         // jwt加密key
-        'secret'     => '123456',
+        'secret' => '123456',
         // 存储到redis中的用户登录凭证key
         'ticket_key' => 'user_ticket',
         // 是否是单点登录
-        'sso'        => false,
+        'sso' => false,
         // 是否需要登录日志
-        'login_log'  => false,
-        'lock'       => [
+        'login_log' => false,
+        'lock' => [
             'enable' => false,
-            'key'    => 'user_lock',
-            'bad'    => 3, // 密码错误次数
-            'time'   => 1 // 锁定时长（分钟）
+            'key' => 'user_lock',
+            'bad' => 3, // 密码错误次数
+            'time' => 1 // 锁定时长（分钟）
         ],
     ],
     // 权限
-    'power'             => [
+    'power' => [
         // 开启|关闭权限验证
-        'enable'     => false,
+        'enable' => false,
         // 存储到redis中的用户权限集key
         'ticket_key' => 'power_ticket',
     ],
-    'account'           => [
+    'account' => [
         // 是否支持多账户
-        'many'                 => true,
+        'many' => true,
         // 账户中间件附加处理
-        'callback_enable'      => false,
+        'callback_enable' => false,
         // 中间件处理类
-        'callback_class'       => '',
+        'callback_class' => '',
         // 中间件处理类中的方法
-        'callback_method'      => 'middleware',
+        'callback_method' => 'middleware',
         // 免处理路由地址
         'callback_free_router' => ['/l/perfect_info']
     ],
-    'wechat'            => [
+    'wechat' => [
         // 参考easywechat配置
         'work' => [
             'corp_id' => '', // 企业ID
-            'secret'  => ''
+            'secret' => ''
         ]
     ],
     // 自定义组件接口类
-    'component_api'     => null,
+    'component_api' => null,
     // 完善信息
     'must_perfect_info' => [
-        'enable'   => false,
+        'enable' => false,
         // 必须完善信息字段
-        'fields'   => ['realname', 'phone'],
+        'fields' => ['realname', 'phone'],
         // 强制修改密码
         'password' => true
     ],
