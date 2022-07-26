@@ -177,12 +177,16 @@ class Tools
         throw new BusinessException($msg);
     }
 
-    public static function Encrypt($value, \Closure $handle)
+    /**
+     * 初始化Http加密配置
+     * @return array
+     */
+    public static function Encrypt()
     {
         if (is_null(static::$encrypt)) {
             static::$encrypt = config('lgdz.encrypt');
         }
-        return static::$encrypt['enable'] ? $handle($value, static::$encrypt['offset'], static::$encrypt['length']) : $value;
+        return static::$encrypt;
     }
 
     /**
@@ -192,9 +196,10 @@ class Tools
      */
     public static function Ok($data = null)
     {
-        $data = static::Encrypt($data, function ($value, $offset, $length) {
-            return Tools::F()->encrypt->encode(json_encode($value), $offset, $length);
-        });
+        $config = static::Encrypt();
+        if ($config['enable']) {
+            $data = Tools::F()->encrypt->encode(json_encode($data), $config['offset'], $config['length']);
+        }
         return static::O()->json(
             static::R()->ok($data)
         );
