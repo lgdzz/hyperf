@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    // http数据加密
     'encrypt' => [
         'enable' => true,
         'offset' => 0,
