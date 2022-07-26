@@ -14,19 +14,24 @@ class EncryptMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $body = $request->getParsedBody();
-        isset($body['encrypt']) && Tools::Encrypt($body['encrypt'], function ($value, $offset, $length) use ($request) {
+        $config = Tools::Encrypt();
+        if ($config['enable']) {
+            $body = $request->getParsedBody();
             switch ($request->getMethod()) {
                 case 'POST':
                 case 'PUT':
                 case 'DELETE':
-                    $request = $request->withParsedBody(
-                        json_decode(Tools::F()->encrypt->decode($value, $offset, $length), true)
-                    );
-                    \Hyperf\Utils\Context::set(ServerRequestInterface::class, $request);
+
+                    if (isset($body['encrypt'])) {
+                        $request = $request->withParsedBody(
+                            json_decode(Tools::F()->encrypt->decode($body['encrypt'], $config['offset'], $config['length']), true)
+                        );
+                        \Hyperf\Utils\Context::set(ServerRequestInterface::class, $request);
+                    }
+
                     break;
             }
-        });
+        }
 
         return $handler->handle($request);
     }
