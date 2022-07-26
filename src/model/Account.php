@@ -69,6 +69,6 @@ class Account extends Model implements CacheableInterface
     public function role()
     {
         return $this->belongsTo(Role::class, 'role_id', 'id')
-            ->select('id', 'name');
+            ->select('id', 'name', 'extends');
     }
 }
