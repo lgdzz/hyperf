@@ -26,7 +26,7 @@
     "hyperf/validation": "^2.1",
     "ext-json": "*",
     "overtrue/wechat": "~5.0",
-    "lgdz/factory": "v2.0.x-dev"
+    "lgdz/factory": "^2.0.1"
   },
   "autoload": {
     "psr-4": {
