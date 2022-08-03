@@ -61,7 +61,7 @@ class AccountService
         $account->org_id = $input->org_id;
         $account->user_id = $user->id;
         $account->role_id = $input->role_id;
-        $account->status = $input->status;
+        $account->status = $input->status ?? 1;
         $account->extends = $input->extends;
         $account->save();
         return $account;
@@ -87,7 +87,10 @@ class AccountService
             return $this->bindUser($input, $user);
         } else {
             // 无账号，创建
-            $user_service->create(new Body(['username' => $input->username, 'phone' => $input->phone, 'realname' => $input->realname, 'from_channel' => User::FROM_CHANNEL_ORG, 'from_id' => $input->org_id, 'extends' => $input->extends]));
+            if (!$input->from_id) {
+                $input->from_id = $input->org_id;
+            }
+            $user_service->create(new Body(['username' => $input->username, 'password' => $input->password, 'phone' => $input->phone, 'realname' => $input->realname, 'from_channel' => User::FROM_CHANNEL_ORG, 'from_id' => $input->from_id, 'extends' => $input->extends]));
             return $this->create($input);
         }
     }

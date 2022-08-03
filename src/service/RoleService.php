@@ -37,7 +37,7 @@ class RoleService
             $input->org_id = $input->org_id ?: Tools::Org()->id;
         }
         // 比对编辑者权限，如果超出则创建失败
-        $this->compareEditorRules($input->pid, $input->rules);
+        $input->rules = $this->compareEditorRulesAndFilter($input->pid, $input->rules);
         $role = new Role();
         $role->setFormData($input);
         $role->save();
@@ -52,7 +52,7 @@ class RoleService
         $role = $this->role($this->findById($id));
         !Tools::IsTargetParentOrg($role->org_id) && Tools::E('超出您自身管理组织范围');
         // 比对编辑者权限，如果超出则创建失败
-        $this->compareEditorRules($role->pid, $input->rules);
+        $input->rules = $this->compareEditorRulesAndFilter($input->pid, $input->rules);
         $role->setFormData($input);
         $role->save();
     }
@@ -87,6 +87,22 @@ class RoleService
         !empty($beyond) && Tools::E('超出您自身权限范围，超出值[' . implode(',', $beyond) . ']');
     }
 
+    /**
+     * 比对编辑者权限并过滤
+     * @param int $parent_role_id
+     * @param array $rules
+     */
+    protected function compareEditorRulesAndFilter(int $parent_role_id, array $rules)
+    {
+        $parent_role = Role::query()->where('id', $parent_role_id)->firstOrFail();
+        // 超级角色不比对权限集
+        if ($parent_role->master) {
+            return $rules;
+        }
+        // 与上级权限取交集
+        return array_intersect(Rule::fullRulesIds($parent_role->rules), $rules);
+    }
+
     public function findById(int $id)
     {
         return Role::findFromCache($id);
@@ -111,11 +127,26 @@ class RoleService
         } else {
             !Tools::IsTargetParentOrg($org_id) && Tools::E('超出您自身管理组织范围');
         }
+
+        // 本单位角色
+        $db = Role::query()->where('org_id', $org_id);
+
         $org_service = Tools::container()->get(OrganizationService::class);
         $org = $org_service->org($org_service->findById($org_id));
-        $admin_role_id = (int)OrganizationGrade::query()->where('id', $org->grade_id)->value('admin_role_id');
+        $grade = OrganizationGrade::query()->where('id', $org->grade_id)->first();
+        if ($grade instanceof OrganizationGrade) {
+            // 默认管理角色
+            $admin_role_id = $grade->admin_role_id;
+            $db = $db->orWhere('id', $admin_role_id);
+            // 共享角色
+            $share_role_ids = $grade->extends['share_role_ids'] ?? [];
+            if (!empty($share_role_ids)) {
+                $db = $db->orWhereIn('id', $share_role_ids);
+            }
+        }
         // 以组织为根返回下级角色
-        $list = Role::query()->where('id', $admin_role_id)->orWhere('org_id', $org_id)->orderBy('id')->get($fields)->toArray();
+        $list = $db->orderBy('id')->get($fields)->toArray();
+
         return empty($list) ? [] : Tools::F()->tree->build($list, $list[0]['pid']);
     }
 }

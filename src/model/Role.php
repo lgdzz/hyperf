@@ -88,9 +88,9 @@ class Role extends Model implements CacheableInterface
     public function setFormData(Body $input)
     {
         if (!$this->id) {
-            $this->pid = $input->pid;
             $this->org_id = $input->org_id;
         }
+        $this->pid = $input->pid;
         $this->name = $input->name;
         $this->status = $input->status ?? 1;
         $this->remark = $input->remark ?? '';

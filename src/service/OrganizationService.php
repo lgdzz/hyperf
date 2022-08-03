@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace lgdz\hyperf\service;
 
+use Hyperf\DbConnection\Db;
 use lgdz\object\Body;
 use lgdz\object\Query;
-use lgdz\hyperf\model\{Organization, OrganizationGrade};
+use lgdz\hyperf\model\{Account, Organization, OrganizationGrade, User};
 use lgdz\hyperf\Tools;
 
 class OrganizationService
@@ -25,9 +26,24 @@ class OrganizationService
     {
         $org = new Organization();
         $org->setFormData($input);
-        $org->save();
-        // 生成path
-        $org->savePath();
+
+        Db::transaction(function () use ($org) {
+            $org->save();
+            // 生成path
+            $org->savePath();
+
+            // 默认创建管理员账号
+            Tools::container()->get(AccountService::class)->create(new Body([
+                'org_id' => $org->id,
+                'role_id' => $org->grade->admin_role_id,
+                'username' => $org->name,
+                'password' => sprintf('%s@123', ucfirst(Tools::F()->pinyin->initial($org->name))),
+                'realname' => $org->name,
+                'phone' => '',
+                'from_id' => 1
+            ]));
+        });
+
     }
 
     public function update(int $id, Body $input)
@@ -73,7 +89,10 @@ class OrganizationService
             if (Organization::query()->where('pid', $org->id)->exists()) {
                 Tools::E('有子级禁止删除');
             }
-            return $org->delete();
+            Db::transaction(function () use ($org) {
+                $org->delete();
+                Account::query()->where('org_id', $org->id)->delete();
+            });
         });
     }
 

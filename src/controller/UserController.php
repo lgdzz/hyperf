@@ -6,17 +6,17 @@ namespace lgdz\hyperf\controller;
 
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
-use Hyperf\HttpServer\Annotation\RequestMapping;
-use Hyperf\HttpServer\Annotation\Middlewares;
 use Hyperf\HttpServer\Annotation\Middleware;
-use lgdz\Factory;
+use Hyperf\HttpServer\Annotation\Middlewares;
+use Hyperf\HttpServer\Annotation\RequestMapping;
+use lgdz\hyperf\annotation\Validator;
+use lgdz\hyperf\middleware\AccountMiddleware;
 use lgdz\hyperf\middleware\AuthUserMiddleware;
 use lgdz\hyperf\middleware\AuthUserPowerMiddleware;
-use lgdz\hyperf\middleware\AccountMiddleware;
 use lgdz\hyperf\middleware\ValidatorMiddleware;
+use lgdz\hyperf\service\LoginLockService;
 use lgdz\hyperf\service\UserService;
 use lgdz\hyperf\Tools;
-use lgdz\hyperf\annotation\Validator;
 use lgdz\hyperf\validator\UserValidator;
 
 /**
@@ -84,6 +84,22 @@ class UserController
     {
         $this->UserService->delete($id);
         Tools::Oplog('删除用户[基础]');
+        return Tools::Ok();
+    }
+
+    /**
+     * @RequestMapping(path="/l/user-unlock/{id}", methods="post")
+     */
+    public function unlock(int $id)
+    {
+        $user = $this->UserService->user($this->UserService->findById($id));
+        if ($user->from_channel !== '组织' || $user->from_id !== Tools::Org()->id) {
+            Tools::E('无权解锁');
+        }
+        Tools::container()->get(LoginLockService::class)->unlock(
+            $this->UserService->user($this->UserService->findById($id))
+        );
+        Tools::Oplog('用户解锁[基础]');
         return Tools::Ok();
     }
 }

@@ -20,6 +20,7 @@ use lgdz\object\Body;
  * @property string $code
  * @property string $name
  * @property string $name_en
+ * @property string $full_name
  * @property int $grade_id
  * @property int $len
  * @property int $status
@@ -164,15 +165,15 @@ class Organization extends Model implements CacheableInterface
         if ($input->code) {
             $this->code = $input->code;
 
-            if ($this->id) {
-                if (Organization::query()->where('code', $this->code)->where('id', '!=', $this->id)->exists()) {
-                    Tools::E('组织编号已存在');
-                }
-            } else {
-                if (Organization::query()->where('code', $this->code)->exists()) {
-                    Tools::E('组织编号已存在');
-                }
-            }
+//            if ($this->id) {
+//                if (Organization::query()->where('code', $this->code)->where('id', '!=', $this->id)->exists()) {
+//                    Tools::E('组织编号已存在');
+//                }
+//            } else {
+//                if (Organization::query()->where('code', $this->code)->exists()) {
+//                    Tools::E('组织编号已存在');
+//                }
+//            }
 
         } else {
             $this->code = '';
@@ -184,6 +185,7 @@ class Organization extends Model implements CacheableInterface
         $this->len = $len;
         $this->name = $input->name;
         $this->name_en = Tools::F()->pinyin->initial($input->name);
+        $this->full_name = $input->full_name;
         $this->grade_id = $input->grade_id;
         $this->status = $input->status ?: 1;
         $this->sort = $input->sort ?: 0;

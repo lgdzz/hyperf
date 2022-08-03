@@ -6,18 +6,19 @@ namespace lgdz\hyperf\controller;
 
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
-use Hyperf\HttpServer\Annotation\RequestMapping;
-use Hyperf\HttpServer\Annotation\Middlewares;
 use Hyperf\HttpServer\Annotation\Middleware;
+use Hyperf\HttpServer\Annotation\Middlewares;
+use Hyperf\HttpServer\Annotation\RequestMapping;
+use lgdz\hyperf\annotation\Validator;
+use lgdz\hyperf\middleware\AccountMiddleware;
 use lgdz\hyperf\middleware\AuthUserMiddleware;
 use lgdz\hyperf\middleware\AuthUserPowerMiddleware;
-use lgdz\hyperf\middleware\AccountMiddleware;
 use lgdz\hyperf\middleware\ValidatorMiddleware;
 use lgdz\hyperf\model\Account;
 use lgdz\hyperf\service\AccountService;
-use lgdz\hyperf\annotation\Validator;
-use lgdz\hyperf\validator\AccountValidator;
+use lgdz\hyperf\service\LoginLockService;
 use lgdz\hyperf\Tools;
+use lgdz\hyperf\validator\AccountValidator;
 
 /**
  * @Controller()
@@ -36,14 +37,22 @@ class AccountController
     protected $AccountService;
 
     /**
+     * @Inject()
+     * @var LoginLockService
+     */
+    private $lockService;
+
+    /**
      * @RequestMapping(path="/l/account", methods="get")
      */
     public function index()
     {
         $result = $this->AccountService->index(Tools::Query(), ['role', 'org', 'user'], function (Account $account) {
             $item = $account->toArray();
+            $item['unlock'] = false;
             if ($account->user->from_channel === '组织' && $account->user->from_id === Tools::Org()->id) {
                 $item['updateUser'] = true;
+                $item['unlock'] = $this->lockService->isLock($account->user->username);
             } else {
                 $item['updateUser'] = false;
             }

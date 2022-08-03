@@ -42,12 +42,24 @@ class LoginLockService
             }
         } else {
             $data = [
-                'status'      => 'unlock', // lock
-                'bad'         => 0,
+                'status' => 'unlock', // lock
+                'bad' => 0,
                 'unlock_time' => 0
             ];
         }
         return $data;
+    }
+
+    public function isLock(string $username): bool
+    {
+        if ($this->enable) {
+            $data = $this->data($username);
+            if ($data['status'] === 'lock') {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function check(User $user): void
