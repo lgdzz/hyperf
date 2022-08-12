@@ -72,7 +72,7 @@ class UserController
      */
     public function update(int $id)
     {
-        $this->UserService->update($id, Tools::Body());
+        $this->UserService->update($id, Tools::Body(), false);
         Tools::Oplog('修改用户[基础]');
         return Tools::Ok();
     }
