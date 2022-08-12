@@ -100,7 +100,7 @@ class RoleService
             return $rules;
         }
         // 与上级权限取交集
-        return array_intersect(Rule::fullRulesIds($parent_role->rules), $rules);
+        return array_values(array_intersect(Rule::fullRulesIds($parent_role->rules), $rules));
     }
 
     public function findById(int $id)
