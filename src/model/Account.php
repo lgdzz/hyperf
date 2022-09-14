@@ -61,14 +61,13 @@ class Account extends Model implements CacheableInterface
     // 关联组织
     public function org()
     {
-        return $this->belongsTo(Organization::class, 'org_id', 'id')
-            ->select('id', 'path', 'path_name', 'name', 'name_en', 'full_name', 'grade_id', 'description', 'extends');
+        return $this->belongsTo(Organization::class, 'org_id', 'id');
     }
 
     // 关联角色
     public function role()
     {
         return $this->belongsTo(Role::class, 'role_id', 'id')
-            ->select('id', 'name', 'extends');
+            ->select('id', 'name', 'rules', 'extends');
     }
 }

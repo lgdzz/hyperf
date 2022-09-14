@@ -97,14 +97,15 @@ abstract class AbstractAuthService
         // 生成token
         [$token, $expire_at] = $this->issueAuthorization($user->id);
         return [
-            'user'      => [
-                'user_id'  => $user->id,
+            'user' => [
+                'user_id' => $user->id,
                 'username' => $user->username,
-                'phone'    => $user->phone,
-                'type'     => $user->type,
-                'extends'  => $user->extends
+                'realname' => $user->realname ?: $user->username,
+                'phone' => $user->phone,
+                'type' => $user->type,
+                'extends' => $user->extends
             ],
-            'token'     => $token,
+            'token' => $token,
             'expire_at' => $expire_at
         ];
     }
@@ -188,7 +189,7 @@ abstract class AbstractAuthService
 
         $this->redis->hSet($this->powerKey(), $this->powerHashKey($account_id), serialize([
             'account_id' => $account_id,
-            'powers'     => $powers
+            'powers' => $powers
         ]));
     }
 

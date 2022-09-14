@@ -17,7 +17,12 @@ class AccountService
     public function index(Query $input, array $with = [], \Closure $callback = null)
     {
         if ($input->username) {
-            $input->user_id = array_column(User::query()->where('username', 'like', '%' . $input->username . '%')->get(['id'])->toArray(), 'id') ?: [-1];
+            $input->user_id = array_column(
+                User::query()
+                    ->where('username', 'like', '%' . $input->username . '%')
+                    ->orWhere('realname', 'like', '%' . $input->username . '%')
+                    ->orWhere('phone', 'like', '%' . $input->username . '%')
+                    ->get(['id'])->toArray(), 'id') ?: [-1];
         }
         if (!empty($with)) {
             $model = Account::query()->with(...$with);
@@ -185,7 +190,9 @@ class AccountService
                 'realname' => $row->user->realname,
                 'username' => $row->user->username,
                 'phone' => $row->user->phone,
-                'role_name' => $row->role->name ?? ''
+                'role_name' => $row->role->name ?? '',
+                'role_rules' => $row->role->rules,
+                'extends' => $row->extends
             ];
         }, $list->all());
     }
