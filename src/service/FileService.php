@@ -22,6 +22,8 @@ class FileService
                 return $query->where('from_id', $value);
             })->when($input->type, function ($query, $value) {
                 return $query->where('type', $value);
+            })->when($input->c_id, function ($query, $value) {
+                return $query->where('c_id', $value);
             })->orderByDesc('id')->paginate($input->size)
         );
     }
@@ -29,9 +31,10 @@ class FileService
     public function create(Body $input): File
     {
         $file = new File();
-        $file->channel = $input->channel;
-        $file->org_id = $input->org_id;
-        $file->from_id = $input->from_id;
+        $file->c_id = $input->c_id ?? 0;
+        $file->channel = $input->channel ?? 'backstage';
+        $file->org_id = $input->org_id ?? Tools::Org()->id;
+        $file->from_id = $input->from_id ?? Tools::Account()->id;
         $file->type = $input->type;
         $file->filename = $input->filename;
         $file->filepath = $input->filepath;

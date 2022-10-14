@@ -13,7 +13,7 @@ class DictionaryService
 {
     public function index()
     {
-        $list = Dictionary::query()->orderByRaw('sort asc,id asc')->get()->toArray();
+        $list = Dictionary::query()->orderByRaw('pid asc,sort asc,id asc')->get()->toArray();
         return empty($list) ? [] : Factory::container()->tree->build($list, $list[0]['pid']);
     }
 
@@ -97,7 +97,7 @@ class DictionaryService
     // 更新内存中的缓存字典
     public function buildCache()
     {
-        $list = Dictionary::query()->selectRaw('id,pid,description label,name,value,value_type')->orderByRaw('sort asc,id asc')->get()->toArray();
+        $list = Dictionary::query()->selectRaw('id,pid,description label,name,value,value_type')->orderByRaw('pid asc,sort asc,id asc')->get()->toArray();
         $id_index_list = [];
         foreach ($list as $item) {
             $id_index_list[str_replace('_' . $item['id'], '_' . $item['value'], $item['name'])] = $item['label'];

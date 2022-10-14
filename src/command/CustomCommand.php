@@ -12,8 +12,9 @@ class CustomCommand extends Command
     protected $name = 'lgdz:cmd';
 
     public $commands = [
-        'init_db'     => InitDataTableAction::class,
-        'clear_cache' => ClearCacheAction::class
+        'init_db' => InitDataTableAction::class,
+        'clear_cache' => ClearCacheAction::class,
+        'data_doc' => DataDocAction::class
         // 其他指令处理类
         // ...
     ];

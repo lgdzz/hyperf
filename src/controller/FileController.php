@@ -49,6 +49,14 @@ class FileController
     }
 
     /**
+     * @RequestMapping(path="/l/file", methods="post")
+     */
+    public function create()
+    {
+        return Tools::Ok($this->FileService->create(Tools::Body()));
+    }
+
+    /**
      * @RequestMapping(path="/l/file/{id}", methods="delete")
      */
     public function delete(int $id)

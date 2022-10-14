@@ -1,6 +1,6 @@
 {
   "name": "lgdz/hyperf",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "tools class",
   "type": "library",
   "license": "MIT",
@@ -21,6 +21,9 @@
     "hyperf/redis": "~2.2.0",
     "hyperf/async-queue": "~2.2.0",
     "hyperf/model-cache": "~2.2.0",
+    "hyperf/paginator": "^2.2",
+    "hyperf/validation": "^2.2",
+    "hyperf/filesystem": "^2.2",
     "ext-json": "*",
     "overtrue/wechat": "~5.0",
     "lgdz/factory": "2.0.x-dev"

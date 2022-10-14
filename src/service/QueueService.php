@@ -65,4 +65,14 @@ class QueueService
     {
         return $this->driver->info();
     }
+
+    /**
+     * 删除延迟消息队列任务
+     * @param JobInterface $job
+     * @return bool
+     */
+    public function delete(JobInterface $job): bool
+    {
+        return $this->driver->delete($job);
+    }
 }
