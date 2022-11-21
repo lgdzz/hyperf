@@ -156,12 +156,13 @@ class Tools
     /**
      * 缓存读取
      * @param $key
+     * @param $default
      * @return mixed
      */
-    public static function C_get($key)
+    public static function C_get($key, $default = null)
     {
         try {
-            return static::C()->get($key);
+            return static::C()->get($key, $default);
         } catch (InvalidArgumentException $e) {
             static::E($e->getMessage());
         }

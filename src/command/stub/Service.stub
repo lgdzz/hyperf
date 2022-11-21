@@ -1,0 +1,76 @@
+<?php
+
+declare(strict_types=1);
+
+namespace %NAMESPACE%;
+
+use %MODEL%;
+use lgdz\hyperf\Tools;
+use lgdz\object\Body;
+use lgdz\object\Query;
+
+class %CLASS%
+{
+    private function queryDb(Query $input, array $with = [])
+    {
+        $db = %MODEL_NAME%::query();
+        if (!empty($with)) {
+            $db = $db->with(...$with);
+        }
+        // todo where条件 ...
+        return $db;
+    }
+
+    public function paginate(Query $input, array $with = [], \Closure $callback = null)
+    {
+        return Tools::P(
+            $this->queryDb($input, $with)->orderByDesc(Tools::BuildOrder($input))->paginate($input->size),
+            $callback
+        );
+    }
+
+    public function list(Query $input, array $with = [], \Closure $callback = null)
+    {
+        $list = $this->queryDb($input, $with)->orderByDesc(Tools::BuildOrder($input))->get()->all();
+        return is_null($callback) ? $list : array_map(function (%MODEL_NAME% $row) {
+            return $callback($row);
+        }, $list);
+    }
+
+    private function setFormData(Body $input, %MODEL_NAME% $item)
+    {
+        // todo 数据模型字段赋值
+        %SET_FORM_DATA%
+    }
+
+    public function create(Body $input)
+    {
+        $item = new %MODEL_NAME%();
+        $this->setFormData($input, $item);
+        $item->save();
+    }
+
+    public function update(int $id, Body $input)
+    {
+        $item = $this->item($this->findById($id));
+        $this->setFormData($input, $item);
+        $item->save();
+    }
+
+    public function delete(int $id)
+    {
+        $item = $this->item($this->findById($id));
+        $item->delete();
+    }
+
+    public function findById(int $id)
+    {
+        return %MODEL_NAME%::query()->where('id', $id)->first();
+    }
+
+    public function item($item): %MODEL_NAME%
+    {
+        return ($item instanceof %MODEL_NAME%) ? $item : Tools::E('record not found');
+    }
+
+}

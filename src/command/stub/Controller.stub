@@ -1,0 +1,79 @@
+<?php
+
+declare(strict_types=1);
+
+namespace %NAMESPACE%;
+
+use %SERVICE%;
+use Hyperf\Di\Annotation\Inject;
+use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\Middleware;
+use Hyperf\HttpServer\Annotation\Middlewares;
+use Hyperf\HttpServer\Annotation\RequestMapping;
+use lgdz\hyperf\middleware\AccountMiddleware;
+use lgdz\hyperf\middleware\AuthUserMiddleware;
+use lgdz\hyperf\middleware\AuthUserPowerMiddleware;
+use lgdz\hyperf\Tools;
+
+/**
+ * @Controller()
+ * @Middlewares({
+ *     @Middleware(AuthUserMiddleware::class),
+ *     @Middleware(AccountMiddleware::class),
+ *     @Middleware(AuthUserPowerMiddleware::class)
+ * })
+ */
+class %CLASS%
+{
+
+    /**
+     * @Inject()
+     * @var %SERVICE_NAME%
+     */
+    private $service;
+
+    /**
+     * @RequestMapping(path="%ROUTE%", methods="get")
+     */
+    public function index()
+    {
+        $result = $this->service->paginate(Tools::Query());
+        return Tools::Ok($result);
+    }
+
+    /**
+     * @RequestMapping(path="%ROUTE%/{id}", methods="get")
+     */
+    public function read(int $id)
+    {
+        $result = $this->service->item($this->service->findById($id));
+        return Tools::Ok($result);
+    }
+
+    /**
+     * @RequestMapping(path="%ROUTE%", methods="post")
+     */
+    public function create()
+    {
+        $this->service->create(Tools::Body());
+        return Tools::Ok();
+    }
+
+    /**
+     * @RequestMapping(path="%ROUTE%/{id}", methods="put")
+     */
+    public function update(int $id)
+    {
+        $this->service->update($id, Tools::Body());
+        return Tools::Ok();
+    }
+
+    /**
+     * @RequestMapping(path="%ROUTE%/{id}", methods="delete")
+     */
+    public function delete(int $id)
+    {
+        $this->service->delete($id);
+        return Tools::Ok();
+    }
+}

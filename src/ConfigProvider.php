@@ -3,7 +3,9 @@
 namespace lgdz\hyperf;
 
 use lgdz\exception\handler\AppExceptionHandler;
+use lgdz\hyperf\command\ControllerCommand;
 use lgdz\hyperf\command\CustomCommand;
+use lgdz\hyperf\command\ServiceCommand;
 
 class ConfigProvider
 {
@@ -14,7 +16,9 @@ class ConfigProvider
             'dependencies' => [],
             // 默认 Command 的定义，合并到 Hyperf\Contract\ConfigInterface 内，换个方式理解也就是与 config/autoload/commands.php 对应
             'commands'     => [
-                CustomCommand::class
+                CustomCommand::class,
+                ControllerCommand::class,
+                ServiceCommand::class
             ],
             // 与 commands 类似
             'listeners'    => [],

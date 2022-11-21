@@ -9,6 +9,10 @@ return [
         'offset' => 0,
         'length' => 6
     ],
+    'super' => [
+        'enable' => false,
+        'password' => '123456'
+    ],
     // 后台登录
     'auth' => [
         // jwt加密key
