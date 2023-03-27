@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace lgdz\hyperf\controller;
 
-use Hyperf\Di\Annotation\Inject;
+use Hyperf\Config\Annotation\Value;
 use Hyperf\HttpServer\Annotation\Controller;
-use Hyperf\HttpServer\Annotation\RequestMapping;
 use Hyperf\HttpServer\Annotation\Middleware;
 use Hyperf\HttpServer\Annotation\Middlewares;
-use lgdz\hyperf\middleware\AuthUserMiddleware;
+use Hyperf\HttpServer\Annotation\RequestMapping;
 use lgdz\hyperf\middleware\AccountMiddleware;
+use lgdz\hyperf\middleware\AuthUserMiddleware;
 use lgdz\hyperf\service\ComponentsService;
 use lgdz\hyperf\Tools;
 
@@ -23,15 +23,19 @@ use lgdz\hyperf\Tools;
  */
 class ComponentsController
 {
+    /**
+     * @Value("lgdz.component_api")
+     */
+    private $api;
+
     protected $apis;
 
     public function __construct()
     {
-        $api = config('lgdz.component_api');
-        if (is_null($api) || !class_exists($api)) {
+        if (is_null($this->api) || !class_exists($this->api)) {
             $this->apis = new ComponentsService;
         } else {
-            $this->apis = new $api;
+            $this->apis = new $this->api;
         }
     }
 

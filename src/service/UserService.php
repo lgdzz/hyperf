@@ -6,6 +6,7 @@ namespace lgdz\hyperf\service;
 
 use Hyperf\DbConnection\Db;
 use lgdz\Factory;
+use lgdz\hyperf\event\UserRegister;
 use lgdz\hyperf\model\Role;
 use lgdz\hyperf\model\User;
 use lgdz\hyperf\model\UserRole;
@@ -20,10 +21,11 @@ class UserService
     {
         $paginate = User::query()->when($input->status, function ($query, $value) {
             return $query->where('status', $value);
-        })->when($input->username, function ($query, $value) {
-            return $query->where('username', 'like', '%' . $value . '%');
-        })->when($input->phone, function ($query, $value) {
-            return $query->where('phone', 'like', '%' . $value . '%');
+        })->when($input->keyword, function ($query, $value) {
+            return $query->where(function ($query) use ($value) {
+                $value = '%' . $value . '%';
+                $query->where('username', 'like', $value)->orWhere('phone', 'like', $value)->orWhere('realname', 'like', $value);
+            });
         })->where('type', 'branch')->orderByDesc('id')->paginate($input->size);
         return Tools::P(
             $paginate,
@@ -55,6 +57,10 @@ class UserService
         $user->from_id = $input->from_id ?? 0;
         $user->extends = $input->extends;
         $user->save();
+
+        // 触发账号注册事件
+        Tools::Service()->event->dispatch(new UserRegister($user));
+
         return $user;
     }
 

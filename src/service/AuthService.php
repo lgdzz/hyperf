@@ -29,7 +29,7 @@ class AuthService extends AbstractAuthService
         // 过滤虚拟页面得到真实页面列表
         $page_list2 = [];
         foreach ($page_list as $index => $item) {
-            if (!Tools::F()->helper->contains($item['client_router'], 'XNYM-')) {
+            if (!Tools::Service()->factory->helper->contains($item['client_router'], 'XNYM-')) {
                 $page_list2[] = $item;
             }
         }

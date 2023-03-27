@@ -49,12 +49,11 @@ return [
         // 免处理路由地址
         'callback_free_router' => ['/l/perfect_info']
     ],
-    'wechat' => [
-        // 参考easywechat配置
-        'work' => [
-            'corp_id' => '', // 企业ID
-            'secret' => ''
-        ]
+    'organization' => [
+        // 创建组织时是否自动创建默认账号
+        'create_default_user' => false,
+        // 组织编码是否唯一
+        'code_unique' => false,
     ],
     // 自定义组件接口类
     'component_api' => null,

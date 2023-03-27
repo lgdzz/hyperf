@@ -165,15 +165,18 @@ class Organization extends Model implements CacheableInterface
         if ($input->code) {
             $this->code = $input->code;
 
-//            if ($this->id) {
-//                if (Organization::query()->where('code', $this->code)->where('id', '!=', $this->id)->exists()) {
-//                    Tools::E('组织编号已存在');
-//                }
-//            } else {
-//                if (Organization::query()->where('code', $this->code)->exists()) {
-//                    Tools::E('组织编号已存在');
-//                }
-//            }
+            // 验证组织编码是否唯一
+            if (config('lgdz.organization.code_unique', false)) {
+                if ($this->id) {
+                    if (Organization::query()->where('code', $this->code)->where('id', '!=', $this->id)->exists()) {
+                        Tools::E('组织编号已存在');
+                    }
+                } else {
+                    if (Organization::query()->where('code', $this->code)->exists()) {
+                        Tools::E('组织编号已存在');
+                    }
+                }
+            }
 
         } else {
             $this->code = '';
@@ -185,21 +188,21 @@ class Organization extends Model implements CacheableInterface
         $this->len = $len;
         $this->name = $input->name;
         $this->name_en = Tools::F()->pinyin->initial($input->name);
-        $this->full_name = $input->full_name;
+        $this->full_name = $input->full_name ?: $this->name;
         $this->grade_id = $input->grade_id;
         $this->status = $input->status ?: 1;
         $this->sort = $input->sort ?: 0;
-        $this->description = $input->description;
-        $this->contact_name = $input->contact_name;
-        $this->contact_tel = $input->contact_tel;
-        $this->contact_address = $input->contact_address;
+        $this->description = $input->description ?: '';
+        $this->contact_name = $input->contact_name ?: '';
+        $this->contact_tel = $input->contact_tel ?: '';
+        $this->contact_address = $input->contact_address ?: '';
         $this->province_code = $input->province_code ?: '00';
-        $this->province = $input->province;
+        $this->province = $input->province ?: '';
         $this->city_code = $input->city_code ?: '00';
-        $this->city = $input->city;
+        $this->city = $input->city ?: '';
         $this->county_code = $input->county_code ?: '00';
-        $this->county = $input->county;
-        $this->extends = $input->extends ?? [];
+        $this->county = $input->county ?: '';
+//        $this->extends = $input->extends ?? [];
     }
 
     public function savePath()

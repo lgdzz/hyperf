@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace lgdz\hyperf\service;
 
+use Hyperf\Config\Annotation\Value;
 use Hyperf\DbConnection\Db;
 use lgdz\object\Body;
 use lgdz\object\Query;
@@ -12,14 +13,26 @@ use lgdz\hyperf\Tools;
 
 class OrganizationService
 {
+    /**
+     * @Value("lgdz.organization")
+     */
+    private $config;
+
     public function index(Query $input)
     {
         $list = Organization::query()->with('grade.role')->when($input->status, function ($query, $value) {
             return $query->where('status', $value);
+        })->when($input->grade_id, function ($query, $value) {
+            return $query->where('grade_id', $value);
+        })->when($input->keyword, function ($query, $value) {
+            return $query->where(function ($query) use ($value) {
+                $value = '%' . $value . '%';
+                $query->where('name', 'like', $value)->orWhere('full_name', 'like', $value);
+            });
         })->when($input->pid, function ($query, $value) {
             return $query->whereRaw("find_in_set({$value},path)");
         })->orderByRaw('len asc,sort asc,id asc')->get()->toArray();
-        return empty($list) ? [] : Tools::F()->tree->build($list, $list[0]['pid']);
+        return empty($list) ? [] : Tools::F()->tree->builds($list, array_column($list, 'pid'));
     }
 
     public function create(Body $input)
@@ -32,16 +45,18 @@ class OrganizationService
             // 生成path
             $org->savePath();
 
-            // 默认创建管理员账号
-            Tools::container()->get(AccountService::class)->create(new Body([
-                'org_id' => $org->id,
-                'role_id' => $org->grade->admin_role_id,
-                'username' => $org->name,
-                'password' => sprintf('%s@123', ucfirst(Tools::F()->pinyin->initial($org->name))),
-                'realname' => $org->name,
-                'phone' => '',
-                'from_id' => 1
-            ]));
+            // 创建管理员账号
+            if (isset($this->config['create_default_user']) && $this->config['create_default_user'] === true) {
+                Tools::Service()->account->create(new Body([
+                    'org_id' => $org->id,
+                    'role_id' => $org->grade->admin_role_id,
+                    'username' => $org->name,
+                    'password' => sprintf('%s@123456', ucfirst(Tools::F()->pinyin->initial($org->name))),
+                    'realname' => '',
+                    'phone' => '',
+                    'from_id' => Tools::Org()->id // 账号来源
+                ]));
+            }
         });
 
     }
@@ -70,6 +85,14 @@ class OrganizationService
             if ((int)$new_pid !== $old_pid) {
                 $this->updateChild($org->id);
             }
+        });
+    }
+
+    public function patchExtends(int $id, Body $input)
+    {
+        $this->checkPermissionDomain($this->org($this->findById($id)), function (Organization $org) use ($input) {
+            $org->extends = $input->body;
+            $org->save();
         });
     }
 

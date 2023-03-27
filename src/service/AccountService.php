@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace lgdz\hyperf\service;
 
+use Hyperf\Config\Annotation\Value;
 use lgdz\hyperf\model\Account;
 use lgdz\hyperf\model\Organization;
 use lgdz\hyperf\model\Role;
@@ -14,6 +15,11 @@ use lgdz\hyperf\Tools;
 
 class AccountService
 {
+    /**
+     * @Value("lgdz.account")
+     */
+    private $config;
+
     public function index(Query $input, array $with = [], \Closure $callback = null)
     {
         if ($input->username) {
@@ -52,7 +58,7 @@ class AccountService
     private function bindUser(Body $input, User $user)
     {
         // 检查是否开启多账户绑定
-        !config('lgdz.account.many') && Account::query()->where('user_id', $user->id)->exists() && Tools::E('账号已存在，系统未开启多账户绑定');
+        !$this->config['many'] && Account::query()->where('user_id', $user->id)->exists() && Tools::E('账号已存在，系统未开启多账户绑定');
         // 组织+用户+角色必须唯一
         if ($input->role_id > 0) {
             $account = Account::query()->where('org_id', $input->org_id)->where('user_id', $user->id)->where('role_id', $input->role_id)->first();
@@ -79,7 +85,7 @@ class AccountService
         }
         // 验证角色所属组织
         $input->role_id && $this->validationOrgIdAndRoleId($input->org_id, $input->role_id);
-        $user_service = Tools::container()->get(UserService::class);
+        $user_service = Tools::Service()->user;
         $user = $user_service->findByUsername($input->username);
 
         // 手动控制创建方式
@@ -95,7 +101,15 @@ class AccountService
             if (!$input->from_id) {
                 $input->from_id = $input->org_id;
             }
-            $user_service->create(new Body(['username' => $input->username, 'password' => $input->password, 'phone' => $input->phone, 'realname' => $input->realname, 'from_channel' => User::FROM_CHANNEL_ORG, 'from_id' => $input->from_id, 'extends' => $input->extends]));
+            $user_service->create(new Body([
+                'username' => $input->username,
+                'password' => $input->password,
+                'phone' => $input->phone,
+                'realname' => $input->realname,
+                'from_channel' => User::FROM_CHANNEL_ORG,
+                'from_id' => $input->from_id,
+                'extends' => $input->extends
+            ]));
             return $this->create($input);
         }
     }
@@ -108,7 +122,15 @@ class AccountService
                 // 验证密码强度
                 Tools::F()->password->checkStrength($input->password, $input->username);
                 // 创建账号
-                $user = Tools::container()->get(UserService::class)->create(new Body(['username' => $input->username, 'password' => $input->password, 'phone' => $input->phone, 'realname' => $input->realname, 'from_channel' => User::FROM_CHANNEL_ORG, 'from_id' => $input->org_id, 'extends' => $input->extends]));
+                $user = Tools::Service()->user->create(new Body([
+                    'username' => $input->username,
+                    'password' => $input->password,
+                    'phone' => $input->phone,
+                    'realname' => $input->realname,
+                    'from_channel' => User::FROM_CHANNEL_ORG,
+                    'from_id' => $input->org_id,
+                    'extends' => $input->extends
+                ]));
                 return $this->bindUser($input, $user);
             case 'bind':
                 if ($user instanceof User) {
@@ -129,18 +151,24 @@ class AccountService
         $account->extends = $input->extends;
         $account->save();
         // 未开启多账户时，同时编辑账号信息
-        if (!config('lgdz.account.many')) {
-            Tools::container()->get(UserService::class)->update($account->user_id, $input);
+        if (!$this->config['many']) {
+            Tools::Service()->user->update($account->user_id, $input);
         }
     }
 
     public function delete(int $id)
     {
         $account = $this->account($this->findById($id));
-        Tools::IsTargetParentOrg($account->org_id) && $account->delete();
+        if (Tools::Account()->id === $account->id) {
+            Tools::E('禁止删除当前身份');
+        } elseif (!Tools::IsTargetParentOrg($account->org_id)) {
+            Tools::E('无权限删除');
+        }
+
+        $account->delete();
         // 未开启多账户时，同时删除账号信息
-        if (!config('lgdz.account.many')) {
-            Tools::container()->get(UserService::class)->delete($account->user_id);
+        if (!$this->config['many']) {
+            Tools::Service()->user->delete($account->user_id);
         }
     }
 

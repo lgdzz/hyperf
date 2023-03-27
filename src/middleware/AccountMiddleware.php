@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace lgdz\hyperf\middleware;
 
+use Hyperf\Config\Annotation\Value;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Router\Dispatched;
 use Psr\Http\Message\ResponseInterface;
@@ -16,17 +17,11 @@ use lgdz\hyperf\Tools;
 
 class AccountMiddleware implements MiddlewareInterface
 {
-    /**
-     * @Inject()
-     * @var OrganizationService
-     */
-    protected $OrgService;
 
     /**
-     * @Inject()
-     * @var AccountService
+     * @Value("lgdz.account")
      */
-    protected $AccountService;
+    private $config;
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
@@ -46,7 +41,7 @@ class AccountMiddleware implements MiddlewareInterface
 
     private function setAccount(int $account_id)
     {
-        $account = $this->AccountService->account($this->AccountService->findById($account_id));
+        $account = Tools::Service()->account->account(Tools::Service()->account->findById($account_id));
         if ($account->user_id !== Tools::U()->id) {
             Tools::E('非法操作');
         }
@@ -55,21 +50,20 @@ class AccountMiddleware implements MiddlewareInterface
 
     private function setOrg(int $org_id)
     {
-        $org = $this->OrgService->org($this->OrgService->findById($org_id));
+        $org = Tools::Service()->organization->org(Tools::Service()->organization->findById($org_id));
         Tools::Org($org);
     }
 
-    private function callback($request)
+    private function callback(ServerRequestInterface $request)
     {
-        $config = config('lgdz.account');
-        if (!$config['callback_enable']) {
+        if (!$this->config['callback_enable']) {
             return;
         }
         $router = $request->getAttribute(Dispatched::class)->handler->route ?? null;
-        if (in_array($router, $config['callback_free_router'])) {
+        if (in_array($router, $this->config['callback_free_router'])) {
             return;
         }
-        $method = $config['callback_method'];
-        $config['callback_class']::$method();
+        $method = $this->config['callback_method'];
+        $this->config['callback_class']::$method();
     }
 }

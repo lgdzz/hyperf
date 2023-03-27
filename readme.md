@@ -1,44 +1,8 @@
-#### P方法
-```
-数据库查询分页
-```
+### 快速生成增删改查服务类
+- args[服务类名 数据库模型]
+`php bin/hyperf.php lgdz:service TestService App\\Model\\Test`
 
-#### I方法
-```
-Request输入
-```
+### 快速生成增删改查控制器
+- args[控制器名 路由地址 服务类]
 
-#### O方法
-```
-Response输出
-```
-
-#### R方法
-```
-输出统一响应数据
-```
-
-#### C方法
-```
-缓存处理对象
-```
-
-#### E方法
-```
-抛出异常处理
-```
-
-#### F方法
-```
-lgdz\factory处理类
-```
-
-#### Ok方法
-```
-http响应成功返回
-```
-
-#### Ban方法
-```
-http响应失败返回
-```
+`php bin/hyperf.php lgdz:controller TestController /test App\\Service\\TestService`

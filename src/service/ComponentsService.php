@@ -12,52 +12,44 @@ class ComponentsService
 {
     /**
      * @Inject()
-     * @var AuthService
+     * @var Service
      */
-    protected $AuthService;
-
-    /**
-     * @Inject()
-     * @var RoleService
-     */
-    protected $RoleService;
-
-    /**
-     * @Inject()
-     * @var LoginLogService
-     */
-    protected $LoginLogService;
+    private $service;
 
     // 当前时间
     public function NowTime()
     {
-        return Tools::F()->time->nowTime();
+        return $this->service->factory->time->nowTime();
     }
 
     // 最近登录列表
     public function LoginLog(int $limit = 10)
     {
-        return $this->LoginLogService->index(new Query([
+        return $this->service->loginLog->index(new Query([
             'user_id' => Tools::U()->id,
-            'limit'   => $limit
+            'limit' => $limit
         ]));
     }
 
     // 数据字典
     public function Dictionary(...$names)
     {
-        $list = [];
-        foreach ($names as $name) {
-            $list[$name] = Tools::D2Tree($name);
+        if (empty($names)) {
+            return Tools::D2TreeAll();
+        } else {
+            $list = [];
+            foreach ($names as $name) {
+                $list[$name] = Tools::D2Tree($name);
+            }
+            return $list;
         }
-        return $list;
     }
 
     // 权限列表
     public function RoleRuleTree(int $role_id)
     {
-        $rule_list = $this->AuthService->getRoleRules(
-            $this->RoleService->role($this->RoleService->findById($role_id))
+        $rule_list = $this->service->auth->getRoleRules(
+            $this->service->role->role($this->service->role->findById($role_id))
         );
         return empty($rule_list) ? [] : Tools::F()->tree->build($rule_list, $rule_list[0]['pid']);
     }
@@ -65,45 +57,45 @@ class ComponentsService
     // 组织类型
     public function OrgGradeTree(int $grade_id = 0, bool $self = false)
     {
-        return Tools::container()->get(OrganizationGradeService::class)->select($grade_id, $self);
+        return $this->service->organizationGrade->select($grade_id, $self);
     }
 
     // 组织列表
     public function OrgTree(int $org_id = 0, bool $self = true)
     {
-        return Tools::container()->get(OrganizationService::class)->select($org_id, $self);
+        return $this->service->organization->select($org_id, $self);
     }
 
     // 部门列表
     public function DepartmentTree(int $org_id = 0)
     {
-        return Tools::container()->get(DepartmentService::class)->select($org_id);
+        return $this->service->department->select($org_id);
     }
 
     // 角色列表
     public function RoleTree(int $org_id = 0)
     {
-        return Tools::container()->get(RoleService::class)->select($org_id);
+        return $this->service->role->select($org_id);
     }
 
     // 组织用户列表(account)
     public function OrgUser(int $org_id = 0)
     {
-        return Tools::container()->get(AccountService::class)->select($org_id ?: Tools::Org()->id);
+        return $this->service->account->select($org_id ?: Tools::Org()->id);
     }
 
     // 部门用户列表(account)
     public function DepartmentUser(int $org_id = 0, int $department_id = 0)
     {
         if (!$org_id && !$department_id) {
-            return Tools::container()->get(DepartmentMemberService::class)->myDeptMembers();
+            return $this->service->departmentMember->myDeptMembers();
         } else {
-            return Tools::container()->get(DepartmentMemberService::class)->members($org_id, $department_id);
+            return $this->service->departmentMember->members($org_id, $department_id);
         }
     }
-    
+
     public function PingUrl(string $method, string $url)
     {
-        return Tools::F()->request->$method($url);
+        return $this->service->factory->request->$method($url);
     }
 }

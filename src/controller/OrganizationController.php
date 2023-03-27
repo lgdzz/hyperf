@@ -80,6 +80,17 @@ class OrganizationController
     }
 
     /**
+     * 更新组织扩展
+     * @RequestMapping(path="/l/organization-extends/{id}", methods="patch")
+     */
+    public function patchExtends(int $id)
+    {
+        $this->OrgService->patchExtends($id, Tools::Body());
+        Tools::Oplog('修改组织extends[基础]');
+        return Tools::ok();
+    }
+
+    /**
      * 删除组织
      * @RequestMapping(path="/l/organization/{id}", methods="delete")
      */

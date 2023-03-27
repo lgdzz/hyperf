@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace lgdz\hyperf\service;
 
+use Hyperf\Config\Annotation\Value;
 use Hyperf\Redis\Redis;
 use Hyperf\Utils\ApplicationContext;
 use lgdz\exception\BusinessException;
@@ -14,6 +15,11 @@ use lgdz\object\Body;
 
 abstract class AbstractAuthService
 {
+    /**
+     * @Value("lgdz.auth")
+     */
+    private $config;
+
     protected $jwt;
     protected $secret;
     protected $ticket_key;
@@ -25,9 +31,9 @@ abstract class AbstractAuthService
      */
     public function __construct()
     {
-        $this->secret = config('lgdz.auth.secret', '1234567890');
-        $this->ticket_key = config('lgdz.auth.ticket_key', 'user_ticket');
-        $this->sso = config('lgdz.auth.sso', false);
+        $this->secret = $this->config['secret'];
+        $this->ticket_key = $this->config['ticket_key'];
+        $this->sso = $this->config['sso'];
         $this->redis = ApplicationContext::getContainer()->get(Redis::class);
 
         $this->jwt = new JwtAuth();

@@ -12,6 +12,7 @@ use lgdz\hyperf\model\OrganizationGrade;
 use lgdz\hyperf\model\User;
 use lgdz\hyperf\service\OplogService;
 use lgdz\hyperf\service\OrganizationService;
+use lgdz\hyperf\service\Service;
 use lgdz\object\Body;
 use lgdz\object\Query;
 use Psr\Log\LoggerInterface;
@@ -61,14 +62,20 @@ class Tools
     // 获取字典树结构数据
     public static function D2Tree(string $name)
     {
+        return static::D2TreeAll()[$name] ?? [];
+//        return static::$dictionary['name_index_tree'][$name] ?? [];
+    }
+
+    // 获取字典数结构数据（全部）
+    public static function D2TreeAll()
+    {
         $key = 'dictionary:name_index_tree';
         $data = static::Context($key);
         if (is_null($data)) {
             $data = Tools::C_get($key);
             static::Context($key, $data);
         }
-        return $data[$name] ?? [];
-//        return static::$dictionary['name_index_tree'][$name] ?? [];
+        return $data;
     }
 
     /**
@@ -320,9 +327,8 @@ class Tools
      */
     public static function IsTargetParentOrg(int $target_org_id): bool
     {
-        $org_service = self::container()->get(OrganizationService::class);
-        $org = $org_service->org($org_service->findById($target_org_id));
-        return self::Org()->id === $target_org_id || in_array(self::Org()->id, $org->pids);
+        $org = static::Service()->organization->org(static::Service()->organization->findById($target_org_id));
+        return static::Org()->id === $target_org_id || in_array(static::Org()->id, $org->pids);
     }
 
     /**
@@ -461,5 +467,10 @@ class Tools
     public static function IsBelongOrg(int $org_id): bool
     {
         return static::Org()->id === $org_id;
+    }
+
+    public static function Service()
+    {
+        return static::container()->get(Service::class);
     }
 }
